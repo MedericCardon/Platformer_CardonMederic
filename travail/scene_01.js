@@ -64,8 +64,8 @@ class scene_01 extends Phaser.Scene{
         this.add.image(0,-55,'etoiles').setOrigin(0).setScrollFactor(0.9);
         //this.add.image(0,-50,'background_02').setOrigin(0).setScrollFactor(0.8);
         //this.add.image(0,-50,'background_01').setOrigin(0).setScrollFactor(0.7);
-        
         this.add.image(850,400,'branche_01').setOrigin(0);
+
         const map = this.make.tilemap({key: 'scene_01_placeholder'});
         const tileset = map.addTilesetImage('place_holder'/*nom fichier tiled*/, 'tiles');
         const water = map.createLayer('water', tileset, 0, 0); 
