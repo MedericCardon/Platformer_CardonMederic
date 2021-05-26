@@ -34,6 +34,7 @@ var etat_enemy = true;
 var zone_enemy;
 var enemy_agro = false;
 var groupeBulletsEnemy;
+var etat_bullet_enemy = true;
 var bulletEnemy;
 var compteurBulletEnemy = 150;
 var bulletEnemyOn = true;
@@ -160,10 +161,12 @@ class scene_01 extends Phaser.Scene{
         });
 
         this.physics.add.overlap(player, zone_enemy,agro_enemy,null,this);
+        //this.physics.add.overlap(player, zone_enemy,test,null,this);
         this.physics.add.collider(groupeBulletsEnemy,ground_02, destroy_bullet_enemy,null,this);
         this.physics.add.collider(groupeBulletsEnemy,wall, destroy_bullet_enemy,null,this);
         this.physics.add.collider(groupeBulletsEnemy,water, destroy_bullet_enemy,null,this);
         this.physics.add.collider(groupeBulletsEnemy,fall_block, destroy_bullet_enemy,null,this);
+        this.physics.add.collider(groupeBulletsEnemy,lever, destroy_bullet_enemy,null,this);
 
         this.physics.add.collider(groupeBullets,ground_02, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall, destroy_bullet,null,this);
@@ -183,7 +186,7 @@ class scene_01 extends Phaser.Scene{
         this.physics.add.collider(ground_02,fall_block,enable_fallBlock,null,this);
 
         
-        //this.physics.add.overlap(player, zone_enemy,shot_enemy,null,this);
+        
 
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  5000  , 1310 );
@@ -225,11 +228,12 @@ class scene_01 extends Phaser.Scene{
     this.input.on('pointerup', function () {
         tirer(player);
     }, this);
-
-    
+  
 }  
 
     update(){
+
+
 
         zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
 
@@ -277,6 +281,7 @@ class scene_01 extends Phaser.Scene{
             textY.setText(player.y);
             player.direction = 'left';
             player.flipX = true;
+
             if(player.body.blocked.down){
                 player.setRotation(0);
             }
@@ -290,8 +295,7 @@ class scene_01 extends Phaser.Scene{
             player.setAngle(-90);
             if(keyZ.isUp){
                 player.setAngle(0);
-            }
-           
+            } 
         }
         else if (keyD.isDown) {
             player.setVelocityX(350);
@@ -308,7 +312,6 @@ class scene_01 extends Phaser.Scene{
             player.setVelocityY(900);
             textX.setText(player.x);
             textY.setText(player.y);
-            
         }
         else  {
             player.setVelocityX(0);
@@ -380,6 +383,7 @@ function enable_fallBlock(){
 function killEnemy(){
     enemy.destroy(true,true);
     etat_enemy = false;
+    etat_bullet_enemy = false;
 }
 
 
@@ -393,11 +397,11 @@ function killEnemy(){
             coefDirEnemy = 1
         }
         bulletEnemy = groupeBulletsEnemy.create(enemy.x + (1 * coefDirEnemy), enemy.y - 20, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
-        // Physique de la carte //
-        bulletEnemy.setCollideWorldBounds(false);
+        // Physique de la carte //*/
+        /*bulletEnemy.setCollideWorldBounds(false);
         bulletEnemy.body.allowGravity = true;
         bulletEnemy.setVelocity(600 * coefDirEnemy, -300); // vitesse en x et en y
-        bulletEnemyOn = false;        
+        bulletEnemyOn = false;    
     }
 }*/
 
@@ -428,10 +432,33 @@ function changeScene(){
 
 function agro_enemy (){
     enemy_agro = true;
+    if (bulletEnemyOn == true && etat_bullet_enemy == true){
+        var coefDirEnemy;
+        if (enemy.direction == 'right') { // determine la direction du joueur //
+            coefDirEnemy = -1; 
+        } else { 
+            coefDirEnemy = 1
+        }
+        bulletEnemy = groupeBulletsEnemy.create(enemy.x /*+ (1 * coefDirEnemy)*/, enemy.y /*- 20*/, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
+        // Physique de la carte //
+        bulletEnemy.setCollideWorldBounds(false);
+        bulletEnemy.body.allowGravity = true;
+        bulletEnemy.setVelocity(600 * coefDirEnemy, -300); // vitesse en x et en y
+        bulletEnemyOn = false;        
+    }
+    if (enemy.x > player.x){
+        enemy.direction = 'right';
+        //console.log("right");
+    }
+    else if(enemy.x < player.x){
+        enemy.direction = 'left';
+        //console.log("left");
+    }
     if(zone_enemy.body.touching && enemy_agro == true && etat_enemy == true){
         enemy.body.immovable = false
         this.physics.moveToObject(enemy, player, 200);
     }
 }
+
 
 

@@ -3,9 +3,18 @@ var camera_block = false;
 var enemy_01;
 var zone_enemy_01;
 var enemy_02;
+var zone_enemy_02;
+var tween_enemy_02;
+var enemy_03;
+var zone_enemy_03;
+var tween_enemy_03;
 var compteur_cam = 250;
 var etat_cam = true;
 var enemy_01_agro = false;
+var mush_poison;
+var etat_poison = true;
+var compteur_mush = 150;
+var relance_poison = 150;
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -21,6 +30,7 @@ class scene_02 extends Phaser.Scene{
         //this.load.image('player','assets/player.png');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 100 });
         this.load.image('enemy','assets/ennemi.png');
+        this.load.image('bulle','assets/bulle.png');
     }
 
     create(){
@@ -43,7 +53,7 @@ class scene_02 extends Phaser.Scene{
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(1300,1444,'player').setScale(0.8).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(1791,804,'player').setScale(0.8).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -63,6 +73,49 @@ class scene_02 extends Phaser.Scene{
         this.physics.world.enable(zone_enemy_01);
         zone_enemy_01.body.setAllowGravity(false);
         zone_enemy_01.body.moves = false;
+
+        enemy_02 = this.physics.add.sprite(1410,932,'enemy');/*.setSize(90,70);*/
+        enemy_02.body.setAllowGravity(true);
+        enemy_02.setCollideWorldBounds(true);
+        enemy_02.setScale(2);
+
+        zone_enemy_02 = this.add.zone(1410, 780).setSize(600, 300);
+        this.physics.world.enable(zone_enemy_02);
+        zone_enemy_02.body.setAllowGravity(false);
+        zone_enemy_02.body.moves = false;
+
+        tween_enemy_02 = this.tweens.add({
+            targets: enemy_02,
+            x: 1510,
+            duration: 500,
+            yoyo : true,
+            repeat: -1
+        });
+
+        mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'bulle');
+        mush_poison.body.setAllowGravity(false);
+        mush_poison.setAlpha(0);
+
+    /*enemy_03 = this.physics.add.sprite(1342,932,'enemy');
+        enemy_03.body.setAllowGravity(true);
+        enemy_03.setCollideWorldBounds(true);
+        enemy_03.setScale(2);
+
+        zone_enemy_03 = this.add.zone(1342, 780).setSize(64, 300);
+        this.physics.world.enable(zone_enemy_03);
+        zone_enemy_03.body.setAllowGravity(false);
+        zone_enemy_03.body.moves = false;
+
+        tween_enemy_03 = this.tweens.add({
+            targets: enemy_03,
+            y: 650,
+            duration: 1000,
+            paused: true,
+            yoyo : true,
+            repeat: 0
+        });*/
+
+
         
 
         this.cameras.main.setZoom(0.55);
@@ -84,8 +137,12 @@ class scene_02 extends Phaser.Scene{
         texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
 
-
+        this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
+        this.physics.add.overlap(player,zone_enemy_02,hit_player,null,this);
+        //this.physics.add.collider(player,zone_enemy_03,agro_enemy_03,null,this);
         this.physics.add.collider(enemy_01,ground_02_s2);
+        this.physics.add.collider(enemy_02,ground_02_s2);
+        //this.physics.add.collider(enemy_03,ground_02_s2);
         this.physics.add.collider(lever_s2,player, leverOn_s2,null,this);
         this.physics.add.collider(ground_02_s2,player, climbOff,null,this);
         this.physics.add.collider(player,ground_02_s2);
@@ -109,17 +166,29 @@ class scene_02 extends Phaser.Scene{
 
     update(){
 
+        if(etat_poison == false && relance_poison > 0){ 
+            relance_poison --;
+            if(relance_poison <= 0 ){
+                compteur_mush = 150;
+                relance_poison = 150;
+            }
+        }
+
         zone_enemy_01.body.debugBodyColor = zone_enemy_01.body.touching.none ? 0x00ffff : 0xffff00;
+        zone_enemy_02.body.debugBodyColor = zone_enemy_02.body.touching.none ? 0x00ffff : 0xffff00;
 
        
         if(zone_enemy_01.body.touching.none){
             enemy_01_agro = false;
-            console.log("agro false")
+            //console.log("agro false")
             enemy_01.body.immovable = true; 
             enemy_01.setVelocityX(0);
         }
 
-        
+        if(zone_enemy_02.body.touching.none){
+            etat_poison = false
+            mush_poison.setAlpha(0);
+        }
             if(compteur_cam == 0){
                 compteur_cam = 250;
             }
@@ -228,6 +297,35 @@ function agro_enemy_01 (){
     if(zone_enemy_01.body.touching && enemy_01_agro == true){
         enemy_01.body.immovable = false
         this.physics.moveToObject(enemy_01, player, 200);
+    }
+}
+
+/*function agro_enemy_02 (){
+        tween_enemy_02.play();
+}*/
+/*function agro_enemy_03 (){
+    tween_enemy_03.play();
+}*/
+
+function poison(){
+    etat_poison = true;
+    if(compteur_mush == 0){
+        etat_poison = false;
+        mush_poison.setAlpha(1);
+    }
+    else if(etat_poison == true ){
+        console.log(compteur_mush);
+        compteur_mush --
+        mush_poison.setAlpha(0);  
+    }
+}
+
+function hit_player(){
+    
+    if(etat_poison == false){
+        playerHp -= 1
+        console.log(playerHp);
+        textHp.setText(playerHp);
     }
 }
 
