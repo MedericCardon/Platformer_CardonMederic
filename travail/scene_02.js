@@ -15,6 +15,14 @@ var mush_poison;
 var etat_poison = true;
 var compteur_mush = 150;
 var relance_poison = 150;
+var target = new Phaser.Math.Vector2();
+
+var etat_dash = true;
+var compteur_dash = 50;
+var relance_dash = 150;
+
+var textDash;
+
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -28,9 +36,10 @@ class scene_02 extends Phaser.Scene{
         this.load.image('tiles', 'assets/place_holder.png');
         this.load.tilemapTiledJSON('scene_02_placeholder', 'scene_02.json');
         //this.load.image('player','assets/player.png');
-        this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 100 });
+        this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
         this.load.image('enemy','assets/ennemi.png');
         this.load.image('bulle','assets/bulle.png');
+        this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 122.5, frameHeight: 135 });
     }
 
     create(){
@@ -53,7 +62,7 @@ class scene_02 extends Phaser.Scene{
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(1791,804,'player').setScale(0.8).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(1884,282,'player').setScale(0.8).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -61,6 +70,25 @@ class scene_02 extends Phaser.Scene{
             key: 'run',
             frames: this.anims.generateFrameNumbers('player', { start: 0, end: 11 }),
             frameRate: 25,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'climb',
+            frames: this.anims.generateFrameNumbers('player', { start: 12, end: 34 }),
+            frameRate: 50,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('player', { start: 35, end: 41 }),
+            frameRate: 5,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'cloud',
+            frames: this.anims.generateFrameNumbers('mush_cloud', { start: 0, end: 5 }),
+            frameRate: 4,
             repeat: 0
         });
 
@@ -89,12 +117,14 @@ class scene_02 extends Phaser.Scene{
             x: 1510,
             duration: 500,
             yoyo : true,
+            paused : true,
             repeat: -1
         });
 
-        mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'bulle');
+        mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'mush_cloud').setScale(2);
         mush_poison.body.setAllowGravity(false);
         mush_poison.setAlpha(0);
+
 
     /*enemy_03 = this.physics.add.sprite(1342,932,'enemy');
         enemy_03.body.setAllowGravity(true);
@@ -115,7 +145,14 @@ class scene_02 extends Phaser.Scene{
             repeat: 0
         });*/
 
-
+        tween_block = this.tweens.add({
+            targets: block,
+            x: -600,
+            duration: 2500,
+            paused: true,
+            yoyo : true,
+            repeat: -1,
+        }); 
         
 
         this.cameras.main.setZoom(0.55);
@@ -136,6 +173,8 @@ class scene_02 extends Phaser.Scene{
         textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+
 
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
         this.physics.add.overlap(player,zone_enemy_02,hit_player,null,this);
@@ -147,30 +186,37 @@ class scene_02 extends Phaser.Scene{
         this.physics.add.collider(ground_02_s2,player, climbOff,null,this);
         this.physics.add.collider(player,ground_02_s2);
         this.physics.add.collider(wall_s2,player, climbOn,null,this);
-
         this.physics.add.overlap(player, zone_enemy_01,agro_enemy_01,null,this);
-        
         this.physics.add.collider(block,player);
 
-        tween_block = this.tweens.add({
-            targets: block,
-            x: -600,
-            duration: 2500,
-            paused: true,
-            yoyo : true,
-            repeat: -1
-        });
-        
+        target.x = 1410;
+        target.y = 932;
+
+        /*this.input.on('pointerdown', function () {
+            dash(player);
+        }, this);*/
+
 
     }
 
     update(){
+
+        
 
         if(etat_poison == false && relance_poison > 0){ 
             relance_poison --;
             if(relance_poison <= 0 ){
                 compteur_mush = 150;
                 relance_poison = 150;
+            }
+        }
+
+        if(etat_dash == false && relance_dash > 0){ 
+            relance_dash --;
+            if(relance_dash <= 0 ){
+                compteur_dash = 50;
+                relance_dash = 150;
+                etat_dash = true;
             }
         }
 
@@ -186,8 +232,10 @@ class scene_02 extends Phaser.Scene{
         }
 
         if(zone_enemy_02.body.touching.none){
-            etat_poison = false
+            etat_poison = false;
             mush_poison.setAlpha(0);
+            tween_enemy_02.pause();
+            this.physics.moveToObject(enemy_02, target, 200);
         }
             if(compteur_cam == 0){
                 compteur_cam = 250;
@@ -208,72 +256,72 @@ class scene_02 extends Phaser.Scene{
         }
         
 
-        if(keyZ.isDown && player.body.blocked.left && wall_climb == true){
-            player.setVelocityY(-200);
-            textX.setText(player.x);
-            textY.setText(player.y);
-            player.direction = 'left';
-            player.flipX = true;
-            player.setAngle(90);
-            if(keyZ.isUp){
-                player.setAngle(0);
-            } 
-        }
-        else if (keyQ.isDown){
-            player.anims.play('run', true);
-            player.setVelocityX(-350);
-            player.setBounce(0.1);
-            textX.setText(player.x);
-            textY.setText(player.y);
-            player.direction = 'left';
-            player.flipX = true;
-            if(player.body.blocked.down){
-                player.setRotation(0);
+        if(keyQ.isDown){
+            if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
+                console.log(wall_climb);
+                player.anims.play('climb',true);
+                player.setVelocityY(-250);
+                player.setVelocityX(-350);
+                textX.setText(player.x);
+                textY.setText(player.y);
+                player.direction = 'left';
+                player.flipX = true;
+            }
+            else if (keyQ.isDown){
+                console.log(wall_climb);
+                player.anims.play('run', true);
+                player.setVelocityX(-350);
+                player.setBounce(0.1);
+                textX.setText(player.x);
+                textY.setText(player.y);
+                player.direction = 'left';
+                player.flipX = true;
             }
         }
-        else if(keyZ.isDown && player.body.blocked.right && wall_climb == true){
-            player.setVelocityY(-200);
-            textX.setText(player.x);
-            textY.setText(player.y);
-            player.direction = 'right';
-            player.flipX = false;
-            player.setAngle(-90);
-            if(keyZ.isUp){
-                player.setAngle(0);
+        else if (keyD.isDown){
+            if(keyD.isDown && space.isDown && etat_dash == true){
+                dashOn();
+                player.setVelocityX(800);
+                textDash.setText(compteur_dash);
             }
-           
-        }
-        else if (keyD.isDown) {
-            player.setVelocityX(350);
-            textX.setText(player.x);
-            textY.setText(player.y);
-            player.direction = 'right';
-            player.flipX = false;
-            player.anims.play('run', true);
-            if(player.body.blocked.down){
-                player.setRotation(0);
+
+            else if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
+                player.setVelocityY(-250);
+                player.setVelocityX(350);
+                player.anims.play('climb',true);
+                textX.setText(player.x);
+                textY.setText(player.y);
+                player.direction = 'right';
+                player.flipX = false;
             }
+            else if (keyD.isDown) {
+                player.setVelocityX(350);
+                textX.setText(player.x);
+                textY.setText(player.y);
+                player.direction = 'right';
+                player.flipX = false;
+                player.anims.play('run', true);
+            }
+            
         }
         else if(Phaser.Input.Keyboard.JustDown(keyS)){
-            player.setVelocityY(900);
+            player.setVelocityY(500);
             textX.setText(player.x);
             textY.setText(player.y);
-            
         }
         else  {
             player.setVelocityX(0);
             textX.setText(player.x);
             textY.setText(player.y);
             player.setRotation(0);
+            player.anims.play('idle', true);
         }
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             player.setBounce(0.1);
             textX.setText(player.x);
             textY.setText(player.y);
-           
         }
-
     }
 }
 
@@ -308,12 +356,14 @@ function agro_enemy_01 (){
 }*/
 
 function poison(){
+    tween_enemy_02.play();
     etat_poison = true;
     if(compteur_mush == 0){
         etat_poison = false;
         mush_poison.setAlpha(1);
     }
     else if(etat_poison == true ){
+        tween_enemy_02.play();
         console.log(compteur_mush);
         compteur_mush --
         mush_poison.setAlpha(0);  
@@ -324,8 +374,19 @@ function hit_player(){
     
     if(etat_poison == false){
         playerHp -= 1
+        mush_poison.anims.play('cloud',true);
         console.log(playerHp);
         textHp.setText(playerHp);
+    }
+}
+
+
+function dashOn(){
+    if(compteur_dash == 0){
+        etat_dash = false;
+    }
+    else if(etat_dash == true ){
+        compteur_dash --
     }
 }
 
