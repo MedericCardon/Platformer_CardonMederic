@@ -56,7 +56,7 @@ class scene_01 extends Phaser.Scene{
         this.load.tilemapTiledJSON('scene_01_placeholder', 'scene_01.json');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
         //this.load.spritesheet('player_climb','assets/spriteSheet_climb.png',{ frameWidth: 110, frameHeight: 173 });
-        this.load.spritesheet('ennemi','assets/ennemi.png',{ frameWidth: 154, frameHeight: 238 });
+        this.load.spritesheet('ennemi','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
         this.load.image('banane','assets/banane_01.png');
         this.load.image('background','assets/background_scene_01.png');
         //this.load.image('background_01','assets/background_01.png');
@@ -128,11 +128,12 @@ class scene_01 extends Phaser.Scene{
         enemy = this.physics.add.sprite(2100,1000,'ennemi');
         enemy.body.setAllowGravity(true);
         enemy.setCollideWorldBounds(true);
-        enemy.setScale(0.7);
+        enemy.setScale(0.6);
+        enemy.setSize(140,242);
 
         this.anims.create({
             key: 'walk',
-            frames: this.anims.generateFrameNumbers('ennemi', { start: 0, end: 31 }),
+            frames: this.anims.generateFrameNumbers('ennemi', { start: 0, end: 39 }),
             frameRate: 25,
             repeat: 0
         });

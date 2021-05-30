@@ -23,6 +23,8 @@ var relance_dash = 150;
 
 var textDash;
 
+var anim_mush_02 = true;
+
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -37,7 +39,8 @@ class scene_02 extends Phaser.Scene{
         this.load.tilemapTiledJSON('scene_02_placeholder', 'scene_02.json');
         //this.load.image('player','assets/player.png');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
-        this.load.image('enemy','assets/ennemi.png');
+        this.load.spritesheet('enemy','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
+        this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 216 });
         this.load.image('bulle','assets/bulle.png');
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 122.5, frameHeight: 135 });
     }
@@ -95,17 +98,38 @@ class scene_02 extends Phaser.Scene{
         enemy_01 = this.physics.add.sprite(1466,1400,'enemy');/*.setSize(90,70);*/
         enemy_01.body.setAllowGravity(true);
         enemy_01.setCollideWorldBounds(true);
-        enemy_01.setScale(2);
+        enemy_01.setScale(0.6);
+
+        this.anims.create({
+            key: 'walk',
+            frames: this.anims.generateFrameNumbers('ennemi', { start: 0, end: 39 }),
+            frameRate: 25,
+            repeat: 0
+        });
 
         zone_enemy_01 = this.add.zone(1150, 1444).setSize(800, 200);
         this.physics.world.enable(zone_enemy_01);
         zone_enemy_01.body.setAllowGravity(false);
         zone_enemy_01.body.moves = false;
 
-        enemy_02 = this.physics.add.sprite(1410,932,'enemy');/*.setSize(90,70);*/
+        enemy_02 = this.physics.add.sprite(1410,800,'enemy_02');/*.setSize(90,70);*/
         enemy_02.body.setAllowGravity(true);
         enemy_02.setCollideWorldBounds(true);
-        enemy_02.setScale(2);
+        enemy_02.setScale(0.6);
+
+        this.anims.create({
+            key: 'walk_mush_02',
+            frames: this.anims.generateFrameNumbers('enemy_02', { start: 0, end: 34 }),
+            frameRate: 15,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'hide',
+            frames: this.anims.generateFrameNumbers('enemy_02', { start: 35, end: 44 }),
+            frameRate: 25,
+            repeat: 0
+        });
 
         zone_enemy_02 = this.add.zone(1410, 780).setSize(600, 300);
         this.physics.world.enable(zone_enemy_02);
@@ -117,7 +141,7 @@ class scene_02 extends Phaser.Scene{
             x: 1510,
             duration: 500,
             yoyo : true,
-            paused : true,
+            paused : false,
             repeat: -1
         });
 
@@ -178,6 +202,7 @@ class scene_02 extends Phaser.Scene{
 
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
         this.physics.add.overlap(player,zone_enemy_02,hit_player,null,this);
+        this.physics.add.overlap(player,zone_enemy_02,anim_mush,null,this);
         //this.physics.add.collider(player,zone_enemy_03,agro_enemy_03,null,this);
         this.physics.add.collider(enemy_01,ground_02_s2);
         this.physics.add.collider(enemy_02,ground_02_s2);
@@ -233,8 +258,10 @@ class scene_02 extends Phaser.Scene{
 
         if(zone_enemy_02.body.touching.none){
             etat_poison = false;
+            enemy_02.anims.play('walk_mush_02',true);
+            tween_enemy_02.play();
             mush_poison.setAlpha(0);
-            tween_enemy_02.pause();
+            anim_mush_02 = true;
             this.physics.moveToObject(enemy_02, target, 200);
         }
             if(compteur_cam == 0){
@@ -342,9 +369,11 @@ function leverOn_s2(block){
 
 function agro_enemy_01 (){
     enemy_01_agro = true;
+    enemy_01.anims.play('walk',true);
     if(zone_enemy_01.body.touching && enemy_01_agro == true){
         enemy_01.body.immovable = false
         this.physics.moveToObject(enemy_01, player, 200);
+
     }
 }
 
@@ -356,17 +385,17 @@ function agro_enemy_01 (){
 }*/
 
 function poison(){
-    tween_enemy_02.play();
+    tween_enemy_02.pause();
+    this.physics.moveToObject(enemy_02, target, 200);
     etat_poison = true;
     if(compteur_mush == 0){
         etat_poison = false;
         mush_poison.setAlpha(1);
     }
     else if(etat_poison == true ){
-        tween_enemy_02.play();
         console.log(compteur_mush);
         compteur_mush --
-        mush_poison.setAlpha(0);  
+        mush_poison.setAlpha(0);
     }
 }
 
@@ -377,6 +406,13 @@ function hit_player(){
         mush_poison.anims.play('cloud',true);
         console.log(playerHp);
         textHp.setText(playerHp);
+    }
+}
+
+function anim_mush(){
+    if(anim_mush_02 == true){
+        enemy_02.anims.play('hide',true);
+        anim_mush_02 = false;
     }
 }
 
