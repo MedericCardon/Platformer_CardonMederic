@@ -5,9 +5,7 @@ var zone_enemy_01;
 var enemy_02;
 var zone_enemy_02;
 var tween_enemy_02;
-var enemy_03;
-var zone_enemy_03;
-var tween_enemy_03;
+
 var compteur_cam = 250;
 var etat_cam = true;
 var enemy_01_agro = false;
@@ -65,7 +63,7 @@ class scene_02 extends Phaser.Scene{
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(1884,282,'player').setScale(0.8).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(1884,282,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -150,24 +148,6 @@ class scene_02 extends Phaser.Scene{
         mush_poison.setAlpha(0);
 
 
-    /*enemy_03 = this.physics.add.sprite(1342,932,'enemy');
-        enemy_03.body.setAllowGravity(true);
-        enemy_03.setCollideWorldBounds(true);
-        enemy_03.setScale(2);
-
-        zone_enemy_03 = this.add.zone(1342, 780).setSize(64, 300);
-        this.physics.world.enable(zone_enemy_03);
-        zone_enemy_03.body.setAllowGravity(false);
-        zone_enemy_03.body.moves = false;
-
-        tween_enemy_03 = this.tweens.add({
-            targets: enemy_03,
-            y: 650,
-            duration: 1000,
-            paused: true,
-            yoyo : true,
-            repeat: 0
-        });*/
 
         tween_block = this.tweens.add({
             targets: block,
@@ -195,7 +175,7 @@ class scene_02 extends Phaser.Scene{
 
         textX = this.add.text(-350,-150, player.x,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        texteBanane = this.add.text(-350,-90, scoreCrystal,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
 
@@ -221,12 +201,18 @@ class scene_02 extends Phaser.Scene{
             dash(player);
         }, this);*/
 
+        
+            
+        
+
 
     }
 
     update(){
 
-        
+        if(player.x >= 3500){
+            this.scene.start("scene_03");
+        }
 
         if(etat_poison == false && relance_poison > 0){ 
             relance_poison --;

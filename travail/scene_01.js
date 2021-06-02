@@ -23,7 +23,7 @@ var textX;
 var textY;
 var textHp;
 
-var scoreBanane = 100;
+var scoreCrystal = 18;
 var texteBanane;
 
 var fall_block;
@@ -43,6 +43,33 @@ var tween_enemy;
 var particles_player;
 var emitter_particles_player;
 
+var particles_bullet;
+var emitter_particles_bullet;
+
+var centre_pdv;
+var pdv_01;
+var pdv_02;
+var pdv_03;
+var pdv_04;
+var pdv_05;
+
+var tween_pdv_01;
+var tween_pdv_02;
+var tween_pdv_03;
+var tween_pdv_04;
+var tween_pdv_05;
+
+var ligne_energie;
+var barre_energie_01;
+var barre_energie_02;
+var barre_energie_03;
+var barre_energie_04;
+var barre_energie_05;
+var barre_energie_06;
+var barre_energie_07;
+var barre_energie_08;
+var barre_energie_09;
+
 class scene_01 extends Phaser.Scene{
     constructor(){
         super("scene_01");
@@ -55,25 +82,46 @@ class scene_01 extends Phaser.Scene{
         this.load.image('tiles', 'assets/place_holder.png');
         this.load.tilemapTiledJSON('scene_01_placeholder', 'scene_01.json');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
-        //this.load.spritesheet('player_climb','assets/spriteSheet_climb.png',{ frameWidth: 110, frameHeight: 173 });
         this.load.spritesheet('ennemi','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
         this.load.image('banane','assets/banane_01.png');
         this.load.image('background','assets/background_scene_01.png');
-        //this.load.image('background_01','assets/background_01.png');
-        //this.load.image('background_02','assets/background_02.png');
-        this.load.image('branche_01','assets/branche_01.png');
         this.load.image('etoiles','assets/etoiles.png');
         this.load.image('fall_block','assets/fall_block.png');
         this.load.image('particles_player','assets/particles_singe.png');
+        this.load.image('particles_bullet','assets/particles_bullet.png');
+        this.load.image('paralax_01','assets/champ_paralax_01.png');
+        //this.load.image('paralax_02','assets/champ_paralax_02.png');
+        this.load.image('branche_01','assets/branche_01.png');
+        this.load.image('champ_01','assets/champ_01.png');
+
+        this.load.image('centre','assets/HUD-assets/centre.png');
+        this.load.image('pdv1','assets/HUD-assets/pdv_01.png');
+        this.load.image('pdv2','assets/HUD-assets/pdv_02.png');
+        this.load.image('pdv3','assets/HUD-assets/pdv_03.png');
+        this.load.image('pdv4','assets/HUD-assets/pdv_04.png');
+        this.load.image('pdv5','assets/HUD-assets/pdv_05.png');
+        this.load.image('ligne_energie','assets/HUD-assets/ligne_energie.png');
+        this.load.image('barre_01','assets/HUD-assets/barre_01.png');
+        this.load.image('barre_02','assets/HUD-assets/barre_02.png');
+        this.load.image('barre_03','assets/HUD-assets/barre_03.png');
+        this.load.image('barre_04','assets/HUD-assets/barre_04.png');
+        this.load.image('barre_05','assets/HUD-assets/barre_05.png');
+        this.load.image('barre_06','assets/HUD-assets/barre_06.png');
+        this.load.image('barre_07','assets/HUD-assets/barre_07.png');
+        this.load.image('barre_08','assets/HUD-assets/barre_08.png');
+        this.load.image('barre_09','assets/HUD-assets/barre_09.png');
+  
+
 
     }
 
     create(){
         this.add.image(0,0,'background').setOrigin(0);
         this.add.image(0,-55,'etoiles').setOrigin(0).setScrollFactor(0.9);
-        //this.add.image(0,-50,'background_02').setOrigin(0).setScrollFactor(0.8);
-        //this.add.image(0,-50,'background_01').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(-150,-50,'paralax_01').setOrigin(0).setScrollFactor(0.7);
+        //this.add.image(-150,-150,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         this.add.image(850,400,'branche_01').setOrigin(0);
+        this.add.image(0,0,'champ_01').setOrigin(0);
 
         const map = this.make.tilemap({key: 'scene_01_placeholder'});
         const tileset = map.addTilesetImage('place_holder'/*nom fichier tiled*/, 'tiles');
@@ -94,6 +142,18 @@ class scene_01 extends Phaser.Scene{
             lifespan: 1500,
             frequency: 70,
             quantity: 2,
+            scale: { start: 1, end: 0.2 },
+            blendMode: 'ADD',
+        });
+
+        particles_bullet = this.add.particles('particles_bullet');
+        emitter_particles_bullet = particles_bullet.createEmitter({
+            x:0,
+            y:0,
+            speed: 30,
+            lifespan: 1500,
+            frequency: 50,
+            quantity: 3,
             scale: { start: 1, end: 0.2 },
             blendMode: 'ADD',
         });
@@ -125,7 +185,7 @@ class scene_01 extends Phaser.Scene{
             repeat: 0
         });
 
-        enemy = this.physics.add.sprite(2100,1000,'ennemi');
+        enemy = this.physics.add.sprite(2700,1000,'ennemi');
         enemy.body.setAllowGravity(true);
         enemy.setCollideWorldBounds(true);
         enemy.setScale(0.6);
@@ -147,7 +207,7 @@ class scene_01 extends Phaser.Scene{
             repeat : -1,
         });*/
 
-        zone_enemy = this.add.zone(2200, 1124).setSize(450, 100);
+        zone_enemy = this.add.zone(3000, 1150).setSize(850, 100);
         this.physics.world.enable(zone_enemy);
         zone_enemy.body.setAllowGravity(false);
         zone_enemy.body.moves = false;
@@ -161,7 +221,7 @@ class scene_01 extends Phaser.Scene{
         const end = map.createLayer('end', tileset, 0, 0);
         
         
-        fall_block = this.physics.add.sprite(2010,800,'fall_block');
+        fall_block = this.physics.add.sprite(2600,800,'fall_block');
         fall_block.setOrigin(0);
         fall_block.body.setAllowGravity(false);
         fall_block.body.immovable = true;
@@ -229,8 +289,8 @@ class scene_01 extends Phaser.Scene{
         
 
         this.cameras.main.setZoom(0.55);
-        this.cameras.main.setBounds(0, 0,  5000  , 1310 );
-        this.physics.world.setBounds(0, 0, 5000 , 1310);
+        this.cameras.main.setBounds(0, 0,  4032  , 1280 );
+        this.physics.world.setBounds(0, 0, 4032 , 1280);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
         
@@ -243,10 +303,119 @@ class scene_01 extends Phaser.Scene{
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 
-        textX = this.add.text(-350,-150, player.x,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        //textX = this.add.text(-350,-150, player.x,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        //textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        //texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        //textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+
+        centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
+        centre_pdv.body.setAllowGravity(false);
+        centre_pdv.setScale(1.3);
+
+        pdv_01 = this.physics.add.sprite(-280,-97,'pdv1').setScrollFactor(0);
+        pdv_01.body.setAllowGravity(false);
+        pdv_01.setScale(1.3);
+
+        tween_pdv_01 = this.tweens.add({
+            targets: pdv_01,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_02 = this.physics.add.sprite(-245,-105,'pdv2').setScrollFactor(0);
+        pdv_02.body.setAllowGravity(false);
+        pdv_02.setScale(1.3);
+
+        tween_pdv_02 = this.tweens.add({
+            targets: pdv_02,
+            y: -110,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_03 = this.physics.add.sprite(-225,-80,'pdv3').setScrollFactor(0);
+        pdv_03.body.setAllowGravity(false);
+        pdv_03.setScale(1.3);
+
+        tween_pdv_03 = this.tweens.add({
+            targets: pdv_03,
+            x: -220,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_04 = this.physics.add.sprite(-245,-45,'pdv4').setScrollFactor(0);
+        pdv_04.body.setAllowGravity(false);
+        pdv_04.setScale(1.3);
+
+        tween_pdv_04 = this.tweens.add({
+            targets: pdv_04,
+            y: -40,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_05 = this.physics.add.sprite(-280,-55,'pdv5').setScrollFactor(0);
+        pdv_05.body.setAllowGravity(false);
+        pdv_05.setScale(1.3);
+
+        tween_pdv_05 = this.tweens.add({
+            targets: pdv_05,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        
+
+        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
+        barre_energie_01.body.setAllowGravity(false);
+        barre_energie_01.setScale(1);
+
+        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0);
+        barre_energie_02.body.setAllowGravity(false);
+        barre_energie_02.setScale(1);
+
+        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0);
+        barre_energie_03.body.setAllowGravity(false);
+        barre_energie_03.setScale(1);
+
+        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0);
+        barre_energie_04.body.setAllowGravity(false);
+        barre_energie_04.setScale(1);
+
+        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0);
+        barre_energie_05.body.setAllowGravity(false);
+        barre_energie_05.setScale(1);
+
+        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0);
+        barre_energie_06.body.setAllowGravity(false);
+        barre_energie_06.setScale(1);
+
+        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0);
+        barre_energie_07.body.setAllowGravity(false);
+        barre_energie_07.setScale(1);
+
+        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0);
+        barre_energie_08.body.setAllowGravity(false);
+        barre_energie_08.setScale(1);
+
+        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0);
+        barre_energie_09.body.setAllowGravity(false);
+        barre_energie_09.setScale(1);
+
+        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
+        ligne_energie.body.setAllowGravity(false);
+        ligne_energie.setScale(1);
+
+       
+        
 
 
     /*var cannonHead = this.add.image(130, 416, 'player').setDepth(1);
@@ -267,13 +436,15 @@ class scene_01 extends Phaser.Scene{
 
     this.input.on('pointerup', function () {
         tirer(player);
+        energy();
+        emitter_particles_bullet.startFollow(bullet);
     }, this);
   
 }  
 
     update(){
 
-
+        
 
         zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
 
@@ -305,8 +476,8 @@ class scene_01 extends Phaser.Scene{
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
             }
@@ -315,8 +486,8 @@ class scene_01 extends Phaser.Scene{
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
                 player.setBounce(0.1);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
@@ -327,15 +498,15 @@ class scene_01 extends Phaser.Scene{
                 player.setVelocityY(-250);
                 player.setVelocityX(350);
                 player.anims.play('climb',true);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
             }
             else if (keyD.isDown) {
                 player.setVelocityX(350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 player.anims.play('run', true);
@@ -344,13 +515,13 @@ class scene_01 extends Phaser.Scene{
         }
         else if(Phaser.Input.Keyboard.JustDown(keyS)){
             player.setVelocityY(500);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
         }
         else  {
             player.setVelocityX(0);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
             player.setRotation(0);
             emitter_particles_player.stopFollow(player);
             player.anims.play('idle', true);
@@ -358,8 +529,8 @@ class scene_01 extends Phaser.Scene{
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             player.setBounce(0.1);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
            
         }
 
@@ -384,9 +555,9 @@ function leverOn(){
 function tirer(player,pointer) {
     
     if (bulletOn == true){
-        if(scoreBanane >= 1){
-            scoreBanane -= 1
-            texteBanane.setText(scoreBanane);
+        if(scoreCrystal >= 1){
+            scoreCrystal -= 1
+            //texteBanane.setText(scoreBanane);
         var coefDir;
         if (player.direction == 'left') { // determine la direction du joueur //
             coefDir = -1; 
@@ -412,6 +583,7 @@ function kill_fallBlock (){
 }
 
 function enable_fallBlock(){
+    fall_condition = false;
     fall_block.body.setAllowGravity(false);
     fall_block.body.immovable = true;
 }
@@ -444,21 +616,63 @@ function killEnemy(){
 }*/
 
 function lose_life(){
-    if (playerHp <= 0){
+    if (playerHp == 0){
+        this.cameras.main.fadeIn(2000);
         player.x = 100;
         player.y = 100;
         playerHp = 5;
-        textHp.setText(playerHp);
+        pdv_01.setAlpha(1);
+        tween_pdv_01.play();
+        pdv_02.setAlpha(1);
+        tween_pdv_02.play();
+        pdv_03.setAlpha(1);
+        tween_pdv_03.play();
+        pdv_04.setAlpha(1);
+        tween_pdv_04.play();
+        pdv_05.setAlpha(1);
+        tween_pdv_05.play();
+        //textHp.setText(playerHp);
     }
-    else if(playerHp >= 1){
+    else if(playerHp == 5){
         playerHp -= 1;
+        pdv_01.setAlpha(0.3);
+        tween_pdv_01.stop();
         bulletEnemy.destroy(true,true);
-        textHp.setText(playerHp);
+        //textHp.setText(playerHp);
+    }
+    else if(playerHp == 4){
+        playerHp -= 1;
+        pdv_02.setAlpha(0.3);
+        tween_pdv_02.stop();
+        bulletEnemy.destroy(true,true);
+        //textHp.setText(playerHp);
+    }
+    else if(playerHp == 3){
+        playerHp -= 1;
+        pdv_03.setAlpha(0.3);
+        tween_pdv_03.stop();
+        bulletEnemy.destroy(true,true);
+        //textHp.setText(playerHp);
+    }
+    else if(playerHp == 2){
+        playerHp -= 1;
+        pdv_04.setAlpha(0.3);
+        tween_pdv_04.stop();
+        bulletEnemy.destroy(true,true);
+        //textHp.setText(playerHp);
+    }
+    else if(playerHp == 1){
+        playerHp -= 1;
+        pdv_05.setAlpha(0.3);
+        tween_pdv_05.stop();
+        bulletEnemy.destroy(true,true);
+        //textHp.setText(playerHp);
     }
 }
 
 function destroy_bullet(){
     bullet.destroy(true,true);
+    emitter_particles_bullet.stopFollow(bullet);
 }
 function destroy_bullet_enemy(){
     bulletEnemy.destroy(true,true);
@@ -498,6 +712,119 @@ function agro_enemy (){
     if(zone_enemy.body.touching && enemy_agro == true && etat_enemy == true){
         enemy.body.immovable = false
         this.physics.moveToObject(enemy, player, 200);
+    }
+}
+
+function energy(){
+    if (scoreCrystal >=17){
+        barre_energie_01.setAlpha(1);
+        barre_energie_02.setAlpha(1);
+        barre_energie_03.setAlpha(1);
+        barre_energie_04.setAlpha(1);
+        barre_energie_05.setAlpha(1);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >= 15){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(1);
+        barre_energie_03.setAlpha(1);
+        barre_energie_04.setAlpha(1);
+        barre_energie_05.setAlpha(1);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >= 13){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(1);
+        barre_energie_04.setAlpha(1);
+        barre_energie_05.setAlpha(1);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >= 11){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(1);
+        barre_energie_05.setAlpha(1);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >= 9){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(1);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >= 7){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(0.3);
+        barre_energie_06.setAlpha(1);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >=5){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(0.3);
+        barre_energie_06.setAlpha(0.3);
+        barre_energie_07.setAlpha(1);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >=3){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(0.3);
+        barre_energie_06.setAlpha(0.3);
+        barre_energie_07.setAlpha(0.3);
+        barre_energie_08.setAlpha(1);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal >=1){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(0.3);
+        barre_energie_06.setAlpha(0.3);
+        barre_energie_07.setAlpha(0.3);
+        barre_energie_08.setAlpha(0.3);
+        barre_energie_09.setAlpha(1);
+    }
+    else if(scoreCrystal == 0){
+        barre_energie_01.setAlpha(0.3);
+        barre_energie_02.setAlpha(0.3);
+        barre_energie_03.setAlpha(0.3);
+        barre_energie_04.setAlpha(0.3);
+        barre_energie_05.setAlpha(0.3);
+        barre_energie_06.setAlpha(0.3);
+        barre_energie_07.setAlpha(0.3);
+        barre_energie_08.setAlpha(0.3);
+        barre_energie_09.setAlpha(0.3);
     }
 }
 
