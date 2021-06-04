@@ -46,6 +46,9 @@ var emitter_particles_player;
 var particles_bullet;
 var emitter_particles_bullet;
 
+var particles_end;
+var emitter_particles_end;
+
 var centre_pdv;
 var pdv_01;
 var pdv_02;
@@ -89,10 +92,14 @@ class scene_01 extends Phaser.Scene{
         this.load.image('fall_block','assets/fall_block.png');
         this.load.image('particles_player','assets/particles_singe.png');
         this.load.image('particles_bullet','assets/particles_bullet.png');
+        this.load.image('particles_end','assets/particules_end.png');
         this.load.image('paralax_01','assets/champ_paralax_01.png');
-        //this.load.image('paralax_02','assets/champ_paralax_02.png');
+        this.load.image('paralax_02','assets/background_crystal.png');
+        this.load.image('paralax_03','assets/paralax_03.png');
         this.load.image('branche_01','assets/branche_01.png');
         this.load.image('champ_01','assets/champ_01.png');
+        this.load.image('end','assets/end.png');
+        
 
         this.load.image('centre','assets/HUD-assets/centre.png');
         this.load.image('pdv1','assets/HUD-assets/pdv_01.png');
@@ -117,8 +124,10 @@ class scene_01 extends Phaser.Scene{
 
     create(){
         this.add.image(0,0,'background').setOrigin(0);
-        this.add.image(0,-55,'etoiles').setOrigin(0).setScrollFactor(0.9);
-        this.add.image(-150,-50,'paralax_01').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(-300,-250,'etoiles').setOrigin(0).setScrollFactor(0.1);
+        this.add.image(-300,-200,'paralax_03').setOrigin(0).setScrollFactor(0.25);
+        this.add.image(-180,-50,'paralax_01').setOrigin(0).setScrollFactor(0.5);
+        this.add.image(-180,300,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         //this.add.image(-150,-150,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         this.add.image(850,400,'branche_01').setOrigin(0);
         this.add.image(0,0,'champ_01').setOrigin(0);
@@ -158,11 +167,28 @@ class scene_01 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
+        
 
 
-        player = this.physics.add.sprite(2220,700,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+
+        player = this.physics.add.sprite(3400,300,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        particles_end = this.add.particles('particles_end');
+        emitter_particles_end = particles_end.createEmitter({
+            x:4050,
+            y:500,
+            speed: 30,
+            lifespan: 5000,
+            frequency: 50,
+            quantity: 2,
+            scale: { start: 2, end: 0.5 },
+            blendMode: 'ADD',
+        });
+
+        this.add.image(0,0,'end').setOrigin(0);
+
 
         
 
@@ -212,11 +238,11 @@ class scene_01 extends Phaser.Scene{
         zone_enemy.body.setAllowGravity(false);
         zone_enemy.body.moves = false;
 
-
+        const elevator_ground = map.createLayer('elevator_ground',tileset,0,0);
         const ground_01 = map.createLayer('ground_01', tileset, 0, 0);
         const ground_03 = map.createLayer('ground_03', tileset, 0, 0);
 
-        const elevator_ground = map.createLayer('elevator_ground',tileset,0,0);
+        
         const ground_02 = map.createLayer('ground_02', tileset, 0, 0);
         const end = map.createLayer('end', tileset, 0, 0);
         
