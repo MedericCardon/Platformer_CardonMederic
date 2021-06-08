@@ -97,6 +97,7 @@ class scene_01 extends Phaser.Scene{
         this.load.image('paralax_02','assets/background_crystal.png');
         this.load.image('paralax_03','assets/paralax_03.png');
         this.load.image('branche_01','assets/branche_01.png');
+        this.load.image('branche_02','assets/branche_02.png');
         this.load.image('champ_01','assets/champ_01.png');
         this.load.image('end','assets/end.png');
         
@@ -127,9 +128,10 @@ class scene_01 extends Phaser.Scene{
         this.add.image(-300,-250,'etoiles').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-200,'paralax_03').setOrigin(0).setScrollFactor(0.25);
         this.add.image(-180,-50,'paralax_01').setOrigin(0).setScrollFactor(0.5);
-        this.add.image(-180,300,'paralax_02').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(-180,400,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         //this.add.image(-150,-150,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         this.add.image(850,400,'branche_01').setOrigin(0);
+        this.add.image(2350,600,'branche_02').setOrigin(0);
         this.add.image(0,0,'champ_01').setOrigin(0);
 
         const map = this.make.tilemap({key: 'scene_01_placeholder'});
@@ -139,6 +141,7 @@ class scene_01 extends Phaser.Scene{
 
         water.setCollisionByExclusion(-1, true);
         elevator_cage.setCollisionByExclusion(-1, true);
+        
 
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
@@ -225,13 +228,6 @@ class scene_01 extends Phaser.Scene{
         });
 
 
-        /*tween_enemy = this.tweens.add({
-            targets: enemy,
-            x:2400,
-            duration:2000,
-            yoyo:true,
-            repeat : -1,
-        });*/
 
         zone_enemy = this.add.zone(3000, 1150).setSize(850, 100);
         this.physics.world.enable(zone_enemy);
@@ -241,11 +237,9 @@ class scene_01 extends Phaser.Scene{
         const elevator_ground = map.createLayer('elevator_ground',tileset,0,0);
         const ground_01 = map.createLayer('ground_01', tileset, 0, 0);
         const ground_03 = map.createLayer('ground_03', tileset, 0, 0);
-
-        
         const ground_02 = map.createLayer('ground_02', tileset, 0, 0);
-        const end = map.createLayer('end', tileset, 0, 0);
-        
+
+        ground_01.setCollisionByExclusion(-1, true);
         
         fall_block = this.physics.add.sprite(2600,800,'fall_block');
         fall_block.setOrigin(0);
@@ -261,10 +255,6 @@ class scene_01 extends Phaser.Scene{
         wall.setCollisionByExclusion(-1, true);
         elevator_ground.setCollisionByExclusion(-1, true);
         ground_02.setCollisionByExclusion(-1, true);
-        end.setCollisionByExclusion(-1, true);
-        
-
-        
         lever.setCollisionByExclusion(-1, true);
 
         tween_elevator_ground = this.tweens.add({
@@ -286,7 +276,6 @@ class scene_01 extends Phaser.Scene{
         });
 
         this.physics.add.overlap(player, zone_enemy,agro_enemy,null,this);
-        //this.physics.add.overlap(player, zone_enemy,test,null,this);
         this.physics.add.collider(groupeBulletsEnemy,ground_02, destroy_bullet_enemy,null,this);
         this.physics.add.collider(groupeBulletsEnemy,wall, destroy_bullet_enemy,null,this);
         this.physics.add.collider(groupeBulletsEnemy,water, destroy_bullet_enemy,null,this);
@@ -297,9 +286,9 @@ class scene_01 extends Phaser.Scene{
         this.physics.add.collider(groupeBullets,ground_01, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,water, destroy_bullet,null,this);
+        this.physics.add.collider(groupeBullets,lever, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,fall_block, destroy_bullet,null,this);
 
-        this.physics.add.collider(end,player,changeScene,null,this);
         this.physics.add.collider(groupeBulletsEnemy,player, lose_life,null,this);
         this.physics.add.collider(lever,player,leverOn,null,this);
         this.physics.add.collider(elevator_ground,player);
@@ -470,7 +459,9 @@ class scene_01 extends Phaser.Scene{
 
     update(){
 
-        
+        if(player.x > 3980){
+            this.scene.start("scene_02");
+        }
 
         zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
 
@@ -704,9 +695,7 @@ function destroy_bullet_enemy(){
     bulletEnemy.destroy(true,true);
 }
 
-function changeScene(){
-    this.scene.start("scene_02");
-}
+
 
 function agro_enemy (){
     enemy_agro = true;

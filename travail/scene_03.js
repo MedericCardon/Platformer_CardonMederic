@@ -19,6 +19,12 @@ var etat_power_up_dash = false;
 var dash = false;
 var tween_power_up;
 
+var particles_end1_s3;
+var emitter_particles_end1_s3;
+
+var particles_end2_s3;
+var emitter_particles_end2_s3;
+
 
 class scene_03 extends Phaser.Scene{
     constructor(){
@@ -38,14 +44,30 @@ class scene_03 extends Phaser.Scene{
         this.load.image('fall_block_02','assets/fall_block_02.png');
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 122.5, frameHeight: 135 });
         this.load.image('power_up','assets/banane_01.png');
+        this.load.image('background_s3','assets/scene_03/background_03.png');
+        this.load.image('branches_s3','assets/scene_03/branches_s3.png');
+        this.load.image('etoiles_s3','assets/scene_03/etoiles_s3.png');
+        this.load.image('crystal_paralaxe_s3','assets/scene_03/crystal_paralaxe_s3.png');
+        this.load.image('mush_para_01_s3','assets/scene_03/mush_para_01_s3.png');
+        this.load.image('mush_para_02_s3','assets/scene_03/mush_para_02_s3.png');
+        this.load.image('foreground_s3','assets/scene_03/foreground.png');
+        this.load.image('end_01','assets/scene_03/end_01_s3.png');
+        this.load.image('end_02','assets/scene_03/end_02_s3.png');
+        this.load.image('particles_end','assets/particules_end.png');
     }
 
     create(){
+        this.add.image(0,0,'background_s3').setOrigin(0);
+        this.add.image(-300,-250,'etoiles_s3').setOrigin(0).setScrollFactor(0.1);
+        this.add.image(-300,-250,'mush_para_02_s3').setOrigin(0).setScrollFactor(0.25);
+        this.add.image(-200,-150,'mush_para_01_s3').setOrigin(0).setScrollFactor(0.5);
+        this.add.image(-100,805,'crystal_paralaxe_s3').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(0,0,'foreground_s3').setOrigin(0);
+        this.add.image(0,0,'branches_s3').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_03_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
         
-        const ground_01_s3 = map.createLayer('ground_01_s3', tileset, 0, 0);
-        const ground_02_s3 = map.createLayer('ground_02_s3', tileset, 0, 0);
+       
         const block_shift_01 = map.createLayer('block_shift_01', tileset,0,0);
         const block_shift_02 = map.createLayer('block_shift_02', tileset,0,0);
         const block_shift_03 = map.createLayer('block_shift_03', tileset,0,0);
@@ -63,15 +85,51 @@ class scene_03 extends Phaser.Scene{
         block_shift_03.setCollisionByExclusion(-1, true);
         block_shift_04.setCollisionByExclusion(-1, true);
         block_shift_05.setCollisionByExclusion(-1, true);
-        ground_02_s3.setCollisionByExclusion(-1, true);
         wall_s3.setCollisionByExclusion(-1, true);
         lever_3.setCollisionByExclusion(-1, true);
         lever_4.setCollisionByExclusion(-1, true);
         trap_s3.setCollisionByExclusion(-1, true);
 
-        player = this.physics.add.sprite(100,804,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(3323,100,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        particles_end1_s3 = this.add.particles('particles_end');
+        emitter_particles_end1_s3 = particles_end1_s3.createEmitter({
+            x:3480,
+            y:1800,
+            speed: 30,
+            lifespan: 5000,
+            frequency: 50,
+            quantity: 2,
+            scale: { start: 2, end: 1 },
+            blendMode: 'ADD',
+        });
+
+        this.add.image(-60,0,'end_01').setOrigin(0);
+
+        particles_end2_s3 = this.add.particles('particles_end');
+        emitter_particles_end2_s3 = particles_end2_s3.createEmitter({
+            x:3323,
+            y:-10,
+            speed: 30,
+            lifespan: 5000,
+            frequency: 50,
+            quantity: 2,
+            scale: { start: 2, end: 0.5 },
+            blendMode: 'ADD',
+        });
+
+        this.add.image(0,0,'end_02').setOrigin(0);
+
+
+        const ground_01_s3 = map.createLayer('ground_01_s3', tileset, 0, 0);
+        const ground_02_s3 = map.createLayer('ground_02_s3', tileset, 0, 0);
+        const ground_03_s3 = map.createLayer('ground_03_s3', tileset, 0, 0);
+
+        ground_01_s3.setCollisionByExclusion(-1, true);
+        ground_02_s3.setCollisionByExclusion(-1, true);
+        ground_03_s3.setCollisionByExclusion(-1, true);
 
         this.anims.create({
             key: 'run',
@@ -137,7 +195,7 @@ class scene_03 extends Phaser.Scene{
             repeat: 0,
         }); 
 
-        fall_block_02 = this.physics.add.sprite(1152,764,'fall_block_02');
+        fall_block_02 = this.physics.add.sprite(1088,764,'fall_block_02');
         fall_block_02.setOrigin(0);
         fall_block_02.body.setAllowGravity(false);
         //fall_block_02.body.immovable = true;
@@ -175,29 +233,6 @@ class scene_03 extends Phaser.Scene{
             repeat: -1,
         }); 
 
-
-        this.physics.add.collider(block_shift_01,player);
-        this.physics.add.collider(block_shift_02,player);
-        this.physics.add.collider(block_shift_03,player);
-        this.physics.add.collider(block_shift_04,player);
-        this.physics.add.collider(block_shift_05,player);
-
-        this.physics.add.collider(fall_block_02,player);
-        this.physics.add.collider(fall_block_02,ground_02_s3,enable_fallBlock_02,null,this);
-        this.physics.add.collider(wall_s3,player, climbOn,null,this);
-        this.physics.add.collider(ground_02_s3,player, climbOff,null,this);
-        this.physics.add.collider(ground_02_s3,enemy_03);
-        this.physics.add.collider(lever_3,player, leverOn3_s3,null,this);
-        this.physics.add.collider(lever_4,player, leverOn4_s3,null,this);
-        this.physics.add.collider(trap_s3,player, trap,null,this);
-        this.physics.add.overlap(power_up_dash,player, activeDash,null,this);
-
-        this.physics.add.overlap(player, zone_enemy_03,agro_enemy_03,null,this);
-        this.physics.add.overlap(player, enemy_03,hitEnemy,null,this);
-
-        
-        
-
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
@@ -207,9 +242,38 @@ class scene_03 extends Phaser.Scene{
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 
+        this.physics.add.collider(lever_3,player,leverOn3_s3,null,this);
+        this.physics.add.collider(lever_4,player,leverOn4_s3,null,this);
+
+        this.physics.add.collider(block_shift_01,player);
+        this.physics.add.collider(block_shift_02,player);
+        this.physics.add.collider(block_shift_03,player);
+        this.physics.add.collider(block_shift_04,player);
+        this.physics.add.collider(block_shift_05,player);
+
+        this.physics.add.collider(fall_block_02,player);
+        this.physics.add.collider(fall_block_02,ground_03_s3,disable_fallBlock_s2,null,this);
+        this.physics.add.collider(player,ground_03_s3);
+        this.physics.add.collider(fall_block_02,ground_02_s3,enable_fallBlock_02,null,this);
+        
+        this.physics.add.collider(wall_s3,player, climbOn,null,this);
+        this.physics.add.collider(ground_02_s3,player, climbOff,null,this);
+        this.physics.add.collider(ground_02_s3,enemy_03);
+        this.physics.add.collider(trap_s3,player, trap,null,this);
+        this.physics.add.overlap(power_up_dash,player, activeDash,null,this);
+
+        this.physics.add.overlap(player, zone_enemy_03,agro_enemy_03,null,this);
+        this.physics.add.overlap(player, enemy_03,hitEnemy,null,this);
+
+        
+        
+
+       
+
+
         this.cameras.main.setZoom(0.55);
-        this.cameras.main.setBounds(0, 0,  5000  , 2000);
-        this.physics.world.setBounds(0, 0, 5000 , 2000);
+        this.cameras.main.setBounds(0, 0,  3456  , 1920);
+        this.physics.world.setBounds(0, 0, 3456 , 1920);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
 
@@ -245,7 +309,6 @@ class scene_03 extends Phaser.Scene{
        
         if(zone_enemy_03.body.touching.none){
             enemy_03_agro = false;
-            //console.log("agro false")
             enemy_03.body.immovable = true; 
             enemy_03.setVelocityX(0);
         }
@@ -337,11 +400,17 @@ function enable_fallBlock_02(){
     fall_block_02.body.immovable = true;
 }
 
+function disable_fallBlock_s2(){
+    fall_block_02.body.setAllowGravity(true);
+    fall_block_02.body.immovable = false;
+}
+
 function leverOn3_s3(){
     if(keyE.isDown && active_lever_3 == false){
         active_lever_3 = true;
         tween_block_shift_03.play();
         tween_block_shift_04.play();
+        console.log("ok levier 3")
     }
 }
 
@@ -349,7 +418,7 @@ function leverOn4_s3(){
     if(keyE.isDown && active_lever_4 == false){
         active_lever_4 = true;
         tween_block_shift_05.play();
-        console.log("ok");
+        console.log("ok levier 4 ");
     }
 }
 
@@ -384,10 +453,6 @@ function dashOn(){
     }
 }
 
-function activeDash(){
-    power_up_dash.destroy(true,true);
-    etat_power_up_dash = true;
-}
 
 function hitEnemy(){
     if(dash == true && etat_enemy_03 == true){

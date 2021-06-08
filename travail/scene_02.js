@@ -23,6 +23,9 @@ var textDash;
 
 var anim_mush_02 = true;
 
+var particles_end_s2;
+var emitter_particles_end_s2;
+
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -41,15 +44,32 @@ class scene_02 extends Phaser.Scene{
         this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 216 });
         this.load.image('bulle','assets/bulle.png');
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 122.5, frameHeight: 135 });
+
+        this.load.image('background_s2','assets/scene_02/background_s2.png');
+        this.load.image('etoiles_s2','assets/scene_02/etoiles_s2.png');
+        this.load.image('branche_01_s2','assets/scene_02/branche_01_s2.png');
+        this.load.image('crystal_paralaxe','assets/scene_02/crystal_paralaxe_s2.png');
+        this.load.image('mush_para_01','assets/scene_02/mush_paralaxe_01_s2.png');
+        this.load.image('mush_para_02','assets/scene_02/mush_paralaxe_02_s2.png');
+        this.load.image('foreground','assets/scene_02/crystal_mush_foreground.png');
+        this.load.image('end','assets/end.png');
+        this.load.image('particles_end','assets/particules_end.png');
     }
 
     create(){
+
+        this.add.image(0,0,'background_s2').setOrigin(0);
+        this.add.image(-300,-250,'etoiles_s2').setOrigin(0).setScrollFactor(0.1);
+        this.add.image(-300,-250,'mush_para_02').setOrigin(0).setScrollFactor(0.25);
+        this.add.image(-200,-150,'mush_para_01').setOrigin(0).setScrollFactor(0.5);
+        this.add.image(1350,350,'branche_01_s2').setOrigin(0);
+        this.add.image(-100,600,'crystal_paralaxe').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(0,0,'foreground').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_02_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
         const lever_s2 = map.createLayer('lever_s2', tileset,0,0);
         const water_s2 = map.createLayer('water_s2', tileset, 0, 0);
         const ground_02_s2 = map.createLayer('ground_02_s2', tileset, 0, 0);
-        const ground_01_s2 = map.createLayer('ground_01_s2', tileset, 0, 0);
         const wall_s2 = map.createLayer('wall_s2', tileset,0,0);
         const block = map.createLayer('block', tileset,0,0);
         
@@ -63,9 +83,25 @@ class scene_02 extends Phaser.Scene{
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(1884,282,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(3414,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        particles_end_s2 = this.add.particles('particles_end');
+        emitter_particles_end_s2 = particles_end_s2.createEmitter({
+            x:3850,
+            y:700,
+            speed: 30,
+            lifespan: 5000,
+            frequency: 50,
+            quantity: 2,
+            scale: { start: 2, end: 0.5 },
+            blendMode: 'ADD',
+        });
+
+        this.add.image(-190,180,'end').setOrigin(0);
+
+        const ground_01_s2 = map.createLayer('ground_01_s2', tileset, 0, 0);
 
         this.anims.create({
             key: 'run',
@@ -100,7 +136,7 @@ class scene_02 extends Phaser.Scene{
 
         this.anims.create({
             key: 'walk',
-            frames: this.anims.generateFrameNumbers('ennemi', { start: 0, end: 39 }),
+            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 39 }),
             frameRate: 25,
             repeat: 0
         });
@@ -160,8 +196,8 @@ class scene_02 extends Phaser.Scene{
         
 
         this.cameras.main.setZoom(0.55);
-        this.cameras.main.setBounds(0, 0,  5000  , 1664);
-        this.physics.world.setBounds(0, 0, 5000 , 1664);
+        this.cameras.main.setBounds(0, 0,  3840  , 1600);
+        this.physics.world.setBounds(0, 0, 3840 , 1600);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
 
@@ -210,7 +246,7 @@ class scene_02 extends Phaser.Scene{
 
     update(){
 
-        if(player.x >= 3500){
+        if(player.x >= 3780){
             this.scene.start("scene_03");
         }
 
@@ -237,7 +273,6 @@ class scene_02 extends Phaser.Scene{
        
         if(zone_enemy_01.body.touching.none){
             enemy_01_agro = false;
-            //console.log("agro false")
             enemy_01.body.immovable = true; 
             enemy_01.setVelocityX(0);
         }
