@@ -9,6 +9,14 @@ var tween_ground_block1;
 var tween_ground_block2;
 var tween_ground_block3;
 
+var enemy_04;
+var zone_enemy_04;
+var tween_enemy_04;
+var enemy_04_agro = false;
+var etat_enemy_04 = true;
+
+
+
 
 class scene_04 extends Phaser.Scene{
     constructor(){
@@ -22,6 +30,7 @@ class scene_04 extends Phaser.Scene{
         this.load.image('tiles', 'assets/place_holder.png');
         this.load.tilemapTiledJSON('scene_04_placeholder', 'scene_04.json');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
+        this.load.spritesheet('enemy','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
 
         this.load.image('background_s4','assets/scene_04/background_04.png');
         this.load.image('branches_s4','assets/scene_04/branche_s4.png');
@@ -122,7 +131,7 @@ class scene_04 extends Phaser.Scene{
          
 
 
-        player = this.physics.add.sprite(100,2077,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(74,2077,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -145,6 +154,24 @@ class scene_04 extends Phaser.Scene{
             repeat: 0
         });
 
+        enemy_04 = this.physics.add.sprite(3300,2000,'enemy');/*.setSize(90,70);*/
+        enemy_04.body.setAllowGravity(true);
+        enemy_04.setCollideWorldBounds(true);
+        enemy_04.setScale(0.6);
+        enemy_04.setSize(140,242);
+
+        this.anims.create({
+            key: 'walk',
+            frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 39 }),
+            frameRate: 25,
+            repeat: 0
+        });
+
+        zone_enemy_04 = this.add.zone(2881, 2077).setSize(1000, 150);
+        this.physics.world.enable(zone_enemy_04);
+        zone_enemy_04.body.setAllowGravity(false);
+        zone_enemy_04.body.moves = false;
+
 
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -161,6 +188,8 @@ class scene_04 extends Phaser.Scene{
         this.physics.add.collider(shift_block_03_s4,player);
         this.physics.add.collider(wall_s4,player, climbOn,null,this);
         this.physics.add.collider(ground_02_s4,player, climbOff,null,this);
+        this.physics.add.collider(ground_02_s4,enemy_04);
+        this.physics.add.overlap(player, zone_enemy_04,agro_enemy_04,null,this);
         this.physics.add.collider(trap_s4,player, trap,null,this);
 
         this.cameras.main.setZoom(0.55);
@@ -177,6 +206,19 @@ class scene_04 extends Phaser.Scene{
     }
 
     update(){
+
+       /* if(etat_enemy_03 == false){
+            enemy_03.anims.stop('walk',true);
+        }*/
+
+        zone_enemy_04.body.debugBodyColor = zone_enemy_04.body.touching.none ? 0x00ffff : 0xffff00;
+
+       
+        if(zone_enemy_04.body.touching.none){
+            enemy_04_agro = false;
+            enemy_04.body.immovable = true; 
+            enemy_04.setVelocityX(0);
+        }
 
         if(etat_dash == false && relance_dash > 0){ 
             relance_dash --;
@@ -286,6 +328,23 @@ function dashOn(){
     }
     else if(etat_dash == true ){
         compteur_dash --
+    }
+}
+
+function agro_enemy_04 (){
+    enemy_04_agro = true;
+    enemy_04.anims.play('walk',true);
+    if(zone_enemy_04.body.touching && enemy_04_agro == true){
+        enemy_04.body.immovable = false;
+        this.physics.moveToObject(enemy_04, player, 200);
+    }
+    if (enemy_04.x > player.x){
+        enemy_04.direction = 'right';
+        enemy_04.flipX = true;
+    }
+    else if(enemy_04.x < player.x){
+        enemy_04.direction = 'left';
+        enemy_04.flipX = false;
     }
 }
 

@@ -174,7 +174,7 @@ class scene_01 extends Phaser.Scene{
 
 
 
-        player = this.physics.add.sprite(3400,300,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(100,800,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -209,7 +209,7 @@ class scene_01 extends Phaser.Scene{
         });
         this.anims.create({
             key: 'idle',
-            frames: this.anims.generateFrameNumbers('player', { start: 35, end: 41 }),
+            frames: this.anims.generateFrameNumbers('player', { start: 35, end: 40 }),
             frameRate: 5,
             repeat: 0
         });

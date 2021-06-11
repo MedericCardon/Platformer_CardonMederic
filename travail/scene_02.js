@@ -26,6 +26,10 @@ var anim_mush_02 = true;
 var particles_end_s2;
 var emitter_particles_end_s2;
 
+var active_lever_02 = false;
+
+var block;
+
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -54,6 +58,7 @@ class scene_02 extends Phaser.Scene{
         this.load.image('foreground','assets/scene_02/crystal_mush_foreground.png');
         this.load.image('end','assets/end.png');
         this.load.image('particles_end','assets/particules_end.png');
+        this.load.image('plateforme_s2','assets/scene_02/plateforme_s2.png');
     }
 
     create(){
@@ -67,25 +72,33 @@ class scene_02 extends Phaser.Scene{
         this.add.image(0,0,'foreground').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_02_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
-        const lever_s2 = map.createLayer('lever_s2', tileset,0,0);
-        const water_s2 = map.createLayer('water_s2', tileset, 0, 0);
-        const ground_02_s2 = map.createLayer('ground_02_s2', tileset, 0, 0);
-        const wall_s2 = map.createLayer('wall_s2', tileset,0,0);
-        const block = map.createLayer('block', tileset,0,0);
+        
         
 
-        lever_s2.setCollisionByExclusion(-1, true);
-        ground_02_s2.setCollisionByExclusion(-1, true);
-        wall_s2.setCollisionByExclusion(-1, true);
-        block.setCollisionByExclusion(-1, true);
+       
+
         
 
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(3414,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(100,100,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        const lever_s2 = map.createLayer('lever_s2', tileset,0,0);
+        const water_s2 = map.createLayer('water_s2', tileset, 0, 0);
+        const ground_02_s2 = map.createLayer('ground_02_s2', tileset, 0, 0);
+        const wall_s2 = map.createLayer('wall_s2', tileset,0,0);
+
+        lever_s2.setCollisionByExclusion(-1, true);
+        ground_02_s2.setCollisionByExclusion(-1, true);
+        wall_s2.setCollisionByExclusion(-1, true);
+
+        block = this.physics.add.sprite(3130,860,'plateforme_s2').setSize(90,70)/*.setOffset(40,0)*/;
+        block.body.setAllowGravity(false);
+        block.setCollideWorldBounds(true);
+        block.body.immovable = true;
 
         particles_end_s2 = this.add.particles('particles_end');
         emitter_particles_end_s2 = particles_end_s2.createEmitter({
@@ -117,7 +130,7 @@ class scene_02 extends Phaser.Scene{
         });
         this.anims.create({
             key: 'idle',
-            frames: this.anims.generateFrameNumbers('player', { start: 35, end: 41 }),
+            frames: this.anims.generateFrameNumbers('player', { start: 35, end: 40 }),
             frameRate: 5,
             repeat: 0
         });
@@ -182,17 +195,6 @@ class scene_02 extends Phaser.Scene{
         mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'mush_cloud').setScale(2);
         mush_poison.body.setAllowGravity(false);
         mush_poison.setAlpha(0);
-
-
-
-        tween_block = this.tweens.add({
-            targets: block,
-            x: -600,
-            duration: 2500,
-            paused: true,
-            yoyo : true,
-            repeat: -1,
-        }); 
         
 
         this.cameras.main.setZoom(0.55);
@@ -245,6 +247,15 @@ class scene_02 extends Phaser.Scene{
     }
 
     update(){
+
+        if(active_lever_02 == true){
+            if(block.x >= 3130){
+                block.setVelocityX(-200);
+            }
+            if(block.x <= 2500 ){
+                block.setVelocityX(200);
+            }
+        }
 
         if(player.x >= 3780){
             this.scene.start("scene_03");
@@ -382,8 +393,8 @@ function climbOff(){
 }
 
 function leverOn_s2(block){
-    if(keyE.isDown && camera_block == false){
-        tween_block.play();
+    if(keyE.isDown && camera_block == false && active_lever_02 == false){
+        active_lever_02 = true;
         camera_block = true;
     }
 }
