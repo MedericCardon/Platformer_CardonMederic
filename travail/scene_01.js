@@ -10,7 +10,6 @@ var keyD;
 var elevator_ground;
 var tween_elevator_ground;
 var tween_elevator_cage;
-var active_lever = false;
 var wall_climb = false;
 var elevator = false;
 
@@ -73,6 +72,21 @@ var barre_energie_07;
 var barre_energie_08;
 var barre_energie_09;
 
+var compteur = 150; // par défaut: 150 //
+var invincible = false;
+
+var compteurEnemy = 100; // par défaut: 150 //
+var invincibleEnemy = false;
+var enemyHp = 2;
+
+var target_enemy = new Phaser.Math.Vector2();
+var spawn_enemy = false;
+
+var zone_levier_01;
+var etat_zone_levier = false;
+
+var pressE;
+
 class scene_01 extends Phaser.Scene{
     constructor(){
         super("scene_01");
@@ -100,6 +114,7 @@ class scene_01 extends Phaser.Scene{
         this.load.image('branche_02','assets/branche_02.png');
         this.load.image('champ_01','assets/champ_01.png');
         this.load.image('end','assets/end.png');
+        this.load.image('pressE','assets/pressE.png');
         
 
         this.load.image('centre','assets/HUD-assets/centre.png');
@@ -144,7 +159,7 @@ class scene_01 extends Phaser.Scene{
         
 
         groupeBullets = this.physics.add.group();
-        groupeBulletsEnemy = this.physics.add.group();
+        //groupeBulletsEnemy = this.physics.add.group();
 
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -174,7 +189,7 @@ class scene_01 extends Phaser.Scene{
 
 
 
-        player = this.physics.add.sprite(100,800,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(100,800,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//start: 100,800
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -191,9 +206,6 @@ class scene_01 extends Phaser.Scene{
         });
 
         this.add.image(0,0,'end').setOrigin(0);
-
-
-        
 
         this.anims.create({
             key: 'run',
@@ -214,7 +226,17 @@ class scene_01 extends Phaser.Scene{
             repeat: 0
         });
 
-        enemy = this.physics.add.sprite(2700,1000,'ennemi');
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
+            frameRate: 8,
+            repeat: 0
+        });
+
+        target_enemy.x = 2815;
+        target_enemy.y = 1181;
+
+        enemy = this.physics.add.sprite(target_enemy.x,1000,'ennemi');
         enemy.body.setAllowGravity(true);
         enemy.setCollideWorldBounds(true);
         enemy.setScale(0.6);
@@ -227,12 +249,28 @@ class scene_01 extends Phaser.Scene{
             repeat: 0
         });
 
+        this.anims.create({
+            key: 'atk',
+            frames: this.anims.generateFrameNumbers('ennemi', { start: 40, end: 54 }),
+            frameRate: 25,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'idle_enemy',
+            frames: this.anims.generateFrameNumbers('ennemi', { start: 55, end: 64 }),
+            frameRate: 5,
+            repeat: -1
+        });
+
 
 
         zone_enemy = this.add.zone(3000, 1150).setSize(850, 100);
         this.physics.world.enable(zone_enemy);
         zone_enemy.body.setAllowGravity(false);
         zone_enemy.body.moves = false;
+
+        
 
         const elevator_ground = map.createLayer('elevator_ground',tileset,0,0);
         const ground_01 = map.createLayer('ground_01', tileset, 0, 0);
@@ -275,30 +313,32 @@ class scene_01 extends Phaser.Scene{
             repeat: 0
         });
 
+        zone_levier_01 = this.add.zone(3770, 1190).setSize(64, 64);
+        this.physics.world.enable(zone_levier_01);
+        zone_levier_01.body.setAllowGravity(false);
+        zone_levier_01.body.moves = false;
+
+        pressE = this.add.sprite(3840,1110,'pressE').setAlpha(0);
+
         this.physics.add.overlap(player, zone_enemy,agro_enemy,null,this);
-        this.physics.add.collider(groupeBulletsEnemy,ground_02, destroy_bullet_enemy,null,this);
-        this.physics.add.collider(groupeBulletsEnemy,wall, destroy_bullet_enemy,null,this);
-        this.physics.add.collider(groupeBulletsEnemy,water, destroy_bullet_enemy,null,this);
-        this.physics.add.collider(groupeBulletsEnemy,fall_block, destroy_bullet_enemy,null,this);
-        this.physics.add.collider(groupeBulletsEnemy,lever, destroy_bullet_enemy,null,this);
+        this.physics.add.overlap(player, enemy,lose_life,null,this);
 
         this.physics.add.collider(groupeBullets,ground_02, destroy_bullet,null,this);
-        this.physics.add.collider(groupeBullets,ground_01, destroy_bullet,null,this);
+
         this.physics.add.collider(groupeBullets,wall, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,water, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,fall_block, destroy_bullet,null,this);
 
-        this.physics.add.collider(groupeBulletsEnemy,player, lose_life,null,this);
-        this.physics.add.collider(lever,player,leverOn,null,this);
+        this.physics.add.overlap(zone_levier_01,player,activLevier,null,this);
         this.physics.add.collider(elevator_ground,player);
         this.physics.add.collider(enemy,ground_02);
-        this.physics.add.collider(enemy,fall_block,killEnemy,null,this);
+        this.physics.add.overlap(groupeBullets,enemy,killEnemy,null,this);
         this.physics.add.collider(wall,player, climbOn,null,this);
         this.physics.add.collider(ground_02,player, climbOff,null,this);
         
-        this.physics.add.collider(fall_block,player,kill_fallBlock,null,this);
-        this.physics.add.collider(ground_02,fall_block,enable_fallBlock,null,this);
+        this.physics.add.collider(fall_block,player);
+
 
         
         
@@ -307,7 +347,7 @@ class scene_01 extends Phaser.Scene{
         this.cameras.main.setBounds(0, 0,  4032  , 1280 );
         this.physics.world.setBounds(0, 0, 4032 , 1280);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
-        this.cameras.main.fadeIn(2000);
+        this.cameras.main.fadeIn(1000);
         
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -430,46 +470,89 @@ class scene_01 extends Phaser.Scene{
         ligne_energie.setScale(1);
 
        
-        
-
-
-    /*var cannonHead = this.add.image(130, 416, 'player').setDepth(1);
-    var cannon = this.add.image(130, 464, 'player').setDepth(1);
-    var bullet = this.physics.add.sprite(cannon.x, cannon.y - 50, 'banane').setScale(2);
-    var gfx = this.add.graphics().setDefaultStyles({ lineStyle: { width: 10, color: 0xffdd00, alpha: 0.5 } });
-    var line = new Phaser.Geom.Line();
-    var angle = 0;
-
-    bullet.disableBody(true, true);
-
-    this.input.on('pointermove', function (pointer) {
-        angle = Phaser.Math.Angle.BetweenPoints(cannon, pointer);
-        cannonHead.rotation = angle;
-        Phaser.Geom.Line.SetToAngle(line, cannon.x, cannon.y -50, angle,98);
-        gfx.clear().strokeLineShape(line);
-    }, this);*/
 
     this.input.on('pointerup', function () {
         tirer(player);
         energy();
         emitter_particles_bullet.startFollow(bullet);
     }, this);
+
+    
   
+    
 }  
 
     update(){
+
+        if (playerHp == 0){
+            this.cameras.main.fadeIn(2000);
+            player.x = 100;
+            player.y = 800;
+            playerHp = 5;
+            pdv_01.setAlpha(1);
+            tween_pdv_01.play();
+            pdv_02.setAlpha(1);
+            tween_pdv_02.play();
+            pdv_03.setAlpha(1);
+            tween_pdv_03.play();
+            pdv_04.setAlpha(1);
+            tween_pdv_04.play();
+            pdv_05.setAlpha(1);
+            tween_pdv_05.play();
+            //textHp.setText(playerHp);
+        }
+
+        if(invincible == true){ // relance du compteur d'invulné player //
+            compteur-- ;
+            if(compteur == 0){
+                compteur = 150;
+                invincible = false ;
+            }
+        }
+
+        if(invincibleEnemy == true){ // relance du compteur d'invulné player //
+            compteurEnemy-- ;
+            if(compteurEnemy == 0){
+                enemy.setTint(0xffffff);
+                compteurEnemy = 100;
+                invincibleEnemy = false ;
+            }
+        }
 
         if(player.x > 3980){
             this.scene.start("scene_02");
         }
 
-        zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
+        //zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
 
         if(zone_enemy.body.touching.none && etat_enemy == true){
             enemy_agro = false;
-            console.log("agro false")
             enemy.body.immovable = true; 
             enemy.setVelocityX(0);
+            this.physics.moveToObject(enemy, target_enemy, 200);
+            if(player.x > enemy.x && spawn_enemy == false){
+                enemy.flipX = true;
+                enemy.anims.play('walk',true);
+            }
+            if(player.x < enemy.x && spawn_enemy == false){
+                enemy.flipX = true;
+                enemy.anims.play('walk',true);
+            }
+            if(enemy.x >= target_enemy.x && enemy.x <= target_enemy.x +2){
+                enemy.anims.play('idle_enemy',true);
+                spawn_enemy = true;
+            }
+            if(enemy.x <= target_enemy.x && enemy.x >= target_enemy.x -2){
+                enemy.anims.play('idle_enemy',true);
+                spawn_enemy = true;
+            }
+            if(enemy.x >= target_enemy.x+10 || enemy.x <= target_enemy.x-10){
+                spawn_enemy = false;
+            }
+        }
+
+        if(zone_levier_01.body.touching.none){
+            pressE.setAlpha(0);
         }
 
         if(bulletOn == false){ // relance du compteur des projectiles //
@@ -480,16 +563,18 @@ class scene_01 extends Phaser.Scene{
             }
         }
 
-        if(bulletEnemyOn == false){ // relance du compteur des projectiles //
+        /*if(bulletEnemyOn == false){ // relance du compteur des projectiles //
             compteurBulletEnemy -- ;
             if(compteurBulletEnemy == 0){
                 compteurBulletEnemy  = 150;
                 bulletEnemyOn = true ;
             }
-        }
+        }*/
+        
+        
+        
         if(keyQ.isDown){
             if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
-                console.log(wall_climb);
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
@@ -498,8 +583,8 @@ class scene_01 extends Phaser.Scene{
                 player.direction = 'left';
                 player.flipX = true;
             }
-            else if (keyQ.isDown){
-                console.log(wall_climb);
+            
+            else if (keyQ.isDown && player.body.blocked.down){
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
                 player.setBounce(0.1);
@@ -509,6 +594,15 @@ class scene_01 extends Phaser.Scene{
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyQ.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(-350);
+                player.flipX = true;
+            }
+            /*else if (keyQ.isDown){
+                player.anims.play('jump', true);
+                player.flipX = true;
+            }*/
         }
         else if (keyD.isDown){
             if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
@@ -520,7 +614,8 @@ class scene_01 extends Phaser.Scene{
                 player.direction = 'right';
                 player.flipX = false;
             }
-            else if (keyD.isDown) {
+            
+            else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
                 //textX.setText(player.x);
                 //textY.setText(player.y);
@@ -529,13 +624,18 @@ class scene_01 extends Phaser.Scene{
                 player.anims.play('run', true);
                 emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyD.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(350);
+                player.flipX = false;
+            }
+            /*else if (keyD.isDown){
+                player.anims.play('jump', true);
+                player.flipX = false;
+            }*/
+            
         }
-        else if(Phaser.Input.Keyboard.JustDown(keyS)){
-            player.setVelocityY(500);
-            //textX.setText(player.x);
-            //textY.setText(player.y);
-        }
-        else  {
+        else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
             //textX.setText(player.x);
             //textY.setText(player.y);
@@ -545,11 +645,11 @@ class scene_01 extends Phaser.Scene{
         }
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
-            player.setBounce(0.1);
-            //textX.setText(player.x);
-            //textY.setText(player.y);
-           
+            player.anims.play('jump',true);
         }
+        
+        
+        
 
     }
 }
@@ -562,12 +662,6 @@ function climbOff(){
     wall_climb = false
 }
 
-function leverOn(){
-    if(keyE.isDown && active_lever == false){
-        tween_elevator_ground.play();
-        tween_elevator_cage.play();
-    }
-}
 
 function tirer(player,pointer) {
     
@@ -591,26 +685,22 @@ function tirer(player,pointer) {
     }
 }
 
-function kill_fallBlock (){
-    if(keyS.isDown && fall_condition == true){
-        fall_block.body.setAllowGravity(true);
-        fall_block.body.immovable = false;
-        
-    }
-}
 
-function enable_fallBlock(){
-    fall_condition = false;
-    fall_block.body.setAllowGravity(false);
-    fall_block.body.immovable = true;
-}
 
 function killEnemy(){
-    enemy.setVisible(false);
-    enemy.setScale(0);
-    etat_enemy = false;
-    etat_bullet_enemy = false;
-    enemy.anims.stop('walk',true);
+    bullet.destroy(true,true);
+    emitter_particles_bullet.stopFollow(bullet);
+    if(invincibleEnemy == false){
+        enemyHp -=1;
+        enemy.setTint(0xff0000);
+        invincibleEnemy = true;
+    }
+    if(enemyHp == 0){
+        enemy.destroy(true,true);
+        etat_enemy = false;
+        //zone_enemy.destroy(true,true);
+
+    }
 }
 
 
@@ -633,72 +723,56 @@ function killEnemy(){
 }*/
 
 function lose_life(){
-    if (playerHp == 0){
-        this.cameras.main.fadeIn(2000);
-        player.x = 100;
-        player.y = 100;
-        playerHp = 5;
-        pdv_01.setAlpha(1);
-        tween_pdv_01.play();
-        pdv_02.setAlpha(1);
-        tween_pdv_02.play();
-        pdv_03.setAlpha(1);
-        tween_pdv_03.play();
-        pdv_04.setAlpha(1);
-        tween_pdv_04.play();
-        pdv_05.setAlpha(1);
-        tween_pdv_05.play();
-        //textHp.setText(playerHp);
-    }
-    else if(playerHp == 5){
+    
+    if(invincible == false){
         playerHp -= 1;
-        pdv_01.setAlpha(0.3);
-        tween_pdv_01.stop();
-        bulletEnemy.destroy(true,true);
-        //textHp.setText(playerHp);
+        invincible = true;
+        if(playerHp == 5){
+            pdv_01.setAlpha(0.3);
+            tween_pdv_01.stop();
+            //bulletEnemy.destroy(true,true);
+            //textHp.setText(playerHp);
+        }
+        else if(playerHp == 4){
+            pdv_02.setAlpha(0.3);
+            tween_pdv_02.stop();
+            //bulletEnemy.destroy(true,true);
+            //textHp.setText(playerHp);
+        }
+        else if(playerHp == 3){
+            pdv_03.setAlpha(0.3);
+            tween_pdv_03.stop();
+            //bulletEnemy.destroy(true,true);
+            //textHp.setText(playerHp);
+        }
+        else if(playerHp == 2){
+            pdv_04.setAlpha(0.3);
+            tween_pdv_04.stop();
+            //bulletEnemy.destroy(true,true);
+            //textHp.setText(playerHp);
+        }
+        else if(playerHp == 1){
+            pdv_05.setAlpha(0.3);
+            tween_pdv_05.stop();
+            //bulletEnemy.destroy(true,true);
+            //textHp.setText(playerHp);
+        } 
     }
-    else if(playerHp == 4){
-        playerHp -= 1;
-        pdv_02.setAlpha(0.3);
-        tween_pdv_02.stop();
-        bulletEnemy.destroy(true,true);
-        //textHp.setText(playerHp);
-    }
-    else if(playerHp == 3){
-        playerHp -= 1;
-        pdv_03.setAlpha(0.3);
-        tween_pdv_03.stop();
-        bulletEnemy.destroy(true,true);
-        //textHp.setText(playerHp);
-    }
-    else if(playerHp == 2){
-        playerHp -= 1;
-        pdv_04.setAlpha(0.3);
-        tween_pdv_04.stop();
-        bulletEnemy.destroy(true,true);
-        //textHp.setText(playerHp);
-    }
-    else if(playerHp == 1){
-        playerHp -= 1;
-        pdv_05.setAlpha(0.3);
-        tween_pdv_05.stop();
-        bulletEnemy.destroy(true,true);
-        //textHp.setText(playerHp);
-    }
+    
 }
 
 function destroy_bullet(){
     bullet.destroy(true,true);
     emitter_particles_bullet.stopFollow(bullet);
 }
-function destroy_bullet_enemy(){
+/*function destroy_bullet_enemy(){
     bulletEnemy.destroy(true,true);
-}
+}*/
 
 
 
-function agro_enemy (){
-    enemy_agro = true;
+
+    /*enemy_agro = true;
     enemy.anims.play('walk',true);
     if (bulletEnemyOn == true && etat_bullet_enemy == true){
         var coefDirEnemy;
@@ -707,26 +781,37 @@ function agro_enemy (){
         } else { 
             coefDirEnemy = 1
         }
-        bulletEnemy = groupeBulletsEnemy.create(enemy.x /*+ (1 * coefDirEnemy)*/, enemy.y /*- 20*/, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
+        bulletEnemy = groupeBulletsEnemy.create(enemy.x /*+ (1 * coefDirEnemy)*///, enemy.y /*- 20*/, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
         // Physique de la carte //
-        bulletEnemy.setCollideWorldBounds(false);
+       /* bulletEnemy.setCollideWorldBounds(false);
         bulletEnemy.body.allowGravity = true;
         bulletEnemy.setVelocity(600 * coefDirEnemy, -300); // vitesse en x et en y
-        bulletEnemyOn = false;        
-    }
-    if (enemy.x > player.x){
+        bulletEnemyOn = false;       
+    }*/
+    
+    
+function agro_enemy (){
+    enemy_agro = true;
+    if (enemy.x > player.x && etat_enemy == true){
         enemy.direction = 'right';
         enemy.flipX = true;
-        //console.log("right");
     }
-    else if(enemy.x < player.x){
+    else if(enemy.x < player.x && etat_enemy == true){
         enemy.direction = 'left';
         enemy.flipX = false;
-        //console.log("left");
     }
-    if(zone_enemy.body.touching && enemy_agro == true && etat_enemy == true){
+    if(player.x >= enemy.x && player.x <= enemy.x+100 && etat_enemy == true){
+        enemy.anims.play('atk',true);
+        this.physics.moveToObject(enemy, player, 100);
+    }
+    else if(player.x <= enemy.x && player.x >= enemy.x-100 && etat_enemy == true){
+        enemy.anims.play('atk',true);
+        this.physics.moveToObject(enemy, player, 100);
+    }
+    else if(zone_enemy.body.touching && enemy_agro == true && etat_enemy == true){
         enemy.body.immovable = false
-        this.physics.moveToObject(enemy, player, 200);
+        enemy.anims.play('walk',true);
+        this.physics.moveToObject(enemy, player, 300);
     }
 }
 
@@ -843,5 +928,12 @@ function energy(){
     }
 }
 
+function activLevier(){
+    pressE.setAlpha(1);
+    if(keyE.isDown){
+        tween_elevator_ground.play();
+        tween_elevator_cage.play();
+    }
+}
 
 

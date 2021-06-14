@@ -18,6 +18,9 @@ var power_up_dash;
 var etat_power_up_dash = false;
 var dash = false;
 var tween_power_up;
+var compteur_dash = 50;
+var etat_dash = true;
+var relance_dash = 150;
 
 var particles_end1_s3;
 var emitter_particles_end1_s3;
@@ -29,6 +32,23 @@ var plateforme_01;
 var plateforme_02;
 var plateforme_03;
 var plateforme_04;
+
+var end1 = false;
+var end2 = false;
+
+var particles_player;
+var emitter_particles_player;
+
+var crystal_chute_01;
+var crystal_chute_02;
+var crystal_chute_03;
+var crystal_chute_04;
+
+var tween_crystal_chute_01;
+var tween_crystal_chute_02;
+var tween_crystal_chute_03;
+var tween_crystal_chute_04;
+
 
 class scene_03 extends Phaser.Scene{
     constructor(){
@@ -60,6 +80,8 @@ class scene_03 extends Phaser.Scene{
         this.load.image('plateforme_02_s3','assets/scene_03/plateforme_02_s3.png');
         this.load.image('end_02','assets/scene_03/end_02_s3.png');
         this.load.image('particles_end','assets/particules_end.png');
+        this.load.image('particles_player','assets/particles_singe.png');
+        this.load.image('crystal_chute','assets/crystal_chute.png');
     }
 
     create(){
@@ -67,36 +89,37 @@ class scene_03 extends Phaser.Scene{
         this.add.image(-300,-250,'etoiles_s3').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-250,'mush_para_02_s3').setOrigin(0).setScrollFactor(0.25);
         this.add.image(-200,-150,'mush_para_01_s3').setOrigin(0).setScrollFactor(0.5);
-        this.add.image(-100,805,'crystal_paralaxe_s3').setOrigin(0).setScrollFactor(0.7);
+        this.add.image(-100,869,'crystal_paralaxe_s3').setOrigin(0).setScrollFactor(0.7);
         this.add.image(0,0,'foreground_s3').setOrigin(0);
         this.add.image(0,0,'branches_s3').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_03_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
         
-       
-        //const block_shift_01 = map.createLayer('block_shift_01', tileset,0,0);
-        //const block_shift_02 = map.createLayer('block_shift_02', tileset,0,0);
-        //const block_shift_03 = map.createLayer('block_shift_03', tileset,0,0);
-        //const block_shift_04 = map.createLayer('block_shift_04', tileset,0,0);
-        //const block_shift_05 = map.createLayer('block_shift_05', tileset,0,0);
+    
         const wall_s3 = map.createLayer('wall_s3', tileset,0,0);
         const lever_3 = map.createLayer('lever_3', tileset,0,0);
         const lever_4 = map.createLayer('lever_4', tileset,0,0);
         const trap_s3 = map.createLayer('trap_s3', tileset,0,0);
 
-        
-        //ground_01_s3.setCollisionByExclusion(-1, true);
-        //block_shift_01.setCollisionByExclusion(-1, true);
-        //block_shift_02.setCollisionByExclusion(-1, true);
-        //block_shift_03.setCollisionByExclusion(-1, true);
-        //block_shift_04.setCollisionByExclusion(-1, true);
-        //block_shift_05.setCollisionByExclusion(-1, true);
+
         wall_s3.setCollisionByExclusion(-1, true);
         lever_3.setCollisionByExclusion(-1, true);
         lever_4.setCollisionByExclusion(-1, true);
         trap_s3.setCollisionByExclusion(-1, true);
 
-        player = this.physics.add.sprite(100,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//depart = 109,797
+        particles_player = this.add.particles('particles_player');
+        emitter_particles_player = particles_player.createEmitter({
+            x:0,
+            y:0,
+            speed: 30,
+            lifespan: 1500,
+            frequency: 70,
+            quantity: 2,
+            scale: { start: 1, end: 0.2 },
+            blendMode: 'ADD',
+        });
+
+        player = this.physics.add.sprite(109,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//depart = 109,797
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -111,6 +134,42 @@ class scene_03 extends Phaser.Scene{
             scale: { start: 2, end: 1 },
             blendMode: 'ADD',
         });
+
+
+        crystal_chute_01 = this.physics.add.sprite(2300,1600,'crystal_chute').setScale(2).setSize(20,20);
+        crystal_chute_01.body.setAllowGravity(false);
+
+        tween_crystal_chute_01 = this.tweens.add({
+            targets: crystal_chute_01,
+            y:  2200,
+            duration: 1800,
+            //paused: true,
+            repeat: -1,
+        }); 
+
+        crystal_chute_02 = this.physics.add.sprite(2450,1600,'crystal_chute').setScale(2).setSize(20,20);
+        crystal_chute_02.body.setAllowGravity(false);
+
+        tween_crystal_chute_02 = this.tweens.add({
+            targets: crystal_chute_02,
+            y:  2200,
+            duration: 2000,
+            //paused: true,
+            repeat: -1,
+        });
+
+        crystal_chute_03 = this.physics.add.sprite(2600,1600,'crystal_chute').setScale(2).setSize(20,20);
+        crystal_chute_03.body.setAllowGravity(false);
+
+        tween_crystal_chute_03 = this.tweens.add({
+            targets: crystal_chute_03,
+            y:  2200,
+            duration: 2200,
+            //paused: true,
+            repeat: -1,
+        })
+
+
 
         this.add.image(-60,0,'end_01').setOrigin(0);
 
@@ -133,7 +192,7 @@ class scene_03 extends Phaser.Scene{
         plateforme_01.setCollideWorldBounds(true);
         plateforme_01.body.immovable = true;
 
-        plateforme_02 = this.physics.add.sprite(950,798,'plateforme_s3').setSize(90,70)/*.setOffset(40,0)*/;
+        plateforme_02 = this.physics.add.sprite(950,900,'plateforme_s3').setSize(90,70)/*.setOffset(40,0)*/;
         plateforme_02.body.setAllowGravity(false);
         plateforme_02.setCollideWorldBounds(true);
         plateforme_02.body.immovable = true;
@@ -175,9 +234,12 @@ class scene_03 extends Phaser.Scene{
             repeat: 0
         });
 
-        
-
-        
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
+            frameRate: 8,
+            repeat: 0
+        });
 
 
 
@@ -250,11 +312,15 @@ class scene_03 extends Phaser.Scene{
         this.physics.add.overlap(player, zone_enemy_03,agro_enemy_03,null,this);
         this.physics.add.overlap(player, enemy_03,hitEnemy,null,this);
 
+        this.physics.add.collider(crystal_chute_01,player, trap,null,this);
+        this.physics.add.collider(crystal_chute_02,player, trap,null,this);
+        this.physics.add.collider(crystal_chute_03,player, trap,null,this);
+
         
 
         this.cameras.main.setZoom(0.55);
-        this.cameras.main.setBounds(0, 0,  3456  , 1920);
-        this.physics.world.setBounds(0, 0, 3456 , 1920);
+        this.cameras.main.setBounds(0, 0,  3456  , 1984);
+        this.physics.world.setBounds(0, 0, 3456 , 1984);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
 
@@ -269,7 +335,15 @@ class scene_03 extends Phaser.Scene{
 
         if(player.y == 1821 && player.x == 3411){
             this.scene.start("scene_04");
+            end2 = true;
+            end1 = false;
         }
+        if(player.y <= 40 && player.x >= 3311){
+            this.scene.start("scene_05");
+            end1 = true;
+            end2 = false;
+        }
+
 
         if(plateforme_01.y > 1099){
             plateforme_01.setVelocityY(-100);
@@ -278,10 +352,10 @@ class scene_03 extends Phaser.Scene{
             plateforme_01.setVelocityY(100);
         }
 
-        if(plateforme_02.y < 799){
+        if(plateforme_02.y < 901){
             plateforme_02.setVelocityY(100);
         }
-        else if(plateforme_02.y > 1099 ){
+        else if(plateforme_02.y > 1280 ){
             plateforme_02.setVelocityY(-100);
         }
 
@@ -300,7 +374,7 @@ class scene_03 extends Phaser.Scene{
             if(plateforme_04.y <= 755){
                 plateforme_04.setVelocityY(200);
             }
-            else if(plateforme_04.y == 1885)
+            else if(plateforme_04.y == 1821)
                 plateforme_04.setVelocity(0);
         }
 
@@ -353,15 +427,25 @@ class scene_03 extends Phaser.Scene{
                 player.direction = 'left';
                 player.flipX = true;
             }
-            else if (keyQ.isDown){
-                console.log(wall_climb);
+            else if (keyQ.isDown && player.body.blocked.down){
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                player.setBounce(0.1);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyQ.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(-350);
+                player.flipX = true;
+            }
+            /*else if (keyQ.isDown){
+                player.anims.play('jump', true);
+                player.flipX = true;
+            }*/
         }
         else if (keyD.isDown){
             if(keyD.isDown && space.isDown && etat_dash == true && etat_power_up_dash == true){
@@ -380,32 +464,37 @@ class scene_03 extends Phaser.Scene{
                 player.direction = 'right';
                 player.flipX = false;
             }
-            else if (keyD.isDown) {
+            else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 player.anims.play('run', true);
+                emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyD.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(350);
+                player.flipX = false;
+            }
+            /*else if (keyD.isDown){
+                player.anims.play('jump', true);
+                player.flipX = false;
+            }*/
             
         }
-        else if(Phaser.Input.Keyboard.JustDown(keyS)){
-            player.setVelocityY(500);
-            textX.setText(player.x);
-            textY.setText(player.y);
-        }
-        else  {
+        else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
             player.setRotation(0);
+            emitter_particles_player.stopFollow(player);
             player.anims.play('idle', true);
         }
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            player.anims.play('jump',true);
         }
     }
 }
@@ -441,8 +530,8 @@ function leverOn4_s3(){
 }
 
 function trap(){
-    player.x = 102;
-    player.y = 804;
+    player.x = 109;
+    player.y = 797;
 }
 
 function agro_enemy_03 (){

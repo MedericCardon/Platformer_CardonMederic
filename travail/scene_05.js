@@ -3,12 +3,6 @@ etat_power_up_dash = true;
 var tween_elevator_s5;
 var tween_ground_elevator_s5;
 
-/*var enemy_04;
-var zone_enemy_04;
-var tween_enemy_04;
-var enemy_04_agro = false;
-var etat_enemy_04 = true;*/
-
 var crystal_explo = false;
 var keyA;
 
@@ -24,6 +18,16 @@ var etat_explo = false;
 var particles_end1_s5;
 var emitter_particles_end1_s5;
 
+var end_vers_s4 = false;
+
+var activeDoor = false;
+
+var compteur_cam_door = 250;
+var etat_cam_door = true;
+var camera_door = false;
+
+var particles_door1;
+var emitter_door1;
 
 
 class scene_05 extends Phaser.Scene{
@@ -110,13 +114,22 @@ class scene_05 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
-        
+        particles_door1 = this.add.particles('particles_bullet_explo');
+        emitter_door1 = particles_door1.createEmitter({
+            angle: { start: 0, end: 360, steps: 16 },
+            lifespan: 400,
+            speed: 400,
+            quantity: 32,
+            scale: { start: 8, end: 0 },
+            blendMode: 'ADD',
+            on: false
+        });
 
-        player = this.physics.add.sprite(1852,925,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(90,349,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//start1 : 90,349, start2 : 550,2013
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
-        door_explo_01 = this.physics.add.sprite(1849,870,'door_explo').setSize(70,170);
+        door_explo_01 = this.physics.add.sprite(1880,700,'door_explo').setSize(70,170);//870
         door_explo_01.body.setAllowGravity(false);
         door_explo_01.setCollideWorldBounds(true);
         door_explo_01.body.immovable = true;
@@ -144,6 +157,8 @@ class scene_05 extends Phaser.Scene{
             scale: { start: 2, end: 1 },
             blendMode: 'ADD',
         });
+
+        
 
         this.add.image(0,0,'foreground_s5').setOrigin(0);
         const elevator_s5 = map.createLayer('elevator_s5', tileset,0,0);
@@ -174,6 +189,7 @@ class scene_05 extends Phaser.Scene{
             y:  -832,
             duration: 3000,
             paused: true,
+            yoyo: true,
             repeat: 0,
         }); 
 
@@ -182,6 +198,7 @@ class scene_05 extends Phaser.Scene{
             y:  -832,
             duration: 3000,
             paused: true,
+            yoyo : true,
             repeat: 0,
         }); 
 
@@ -201,6 +218,13 @@ class scene_05 extends Phaser.Scene{
             key: 'idle',
             frames: this.anims.generateFrameNumbers('player', { start: 35, end: 40 }),
             frameRate: 5,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
+            frameRate: 8,
             repeat: 0
         });
 
@@ -270,6 +294,13 @@ class scene_05 extends Phaser.Scene{
         this.physics.add.collider(groupeBullets,water_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet,null,this);
 
+        this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet_explo,null,this);
+        this.physics.add.collider(groupeBullets,ground_02_s5, destroy_bullet_explo,null,this);
+        this.physics.add.collider(groupeBullets,ground_01_s5, destroy_bullet_explo,null,this);
+        this.physics.add.collider(groupeBullets,wall_s5, destroy_bullet_explo,null,this);
+        this.physics.add.collider(groupeBullets,water_s5, destroy_bullet_explo,null,this);
+        this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet_explo,null,this);
+
         this.physics.add.collider(lever_s5,player, activeElevator_s5,null,this);
         
         this.physics.add.collider(wall_s5,player, climbOn,null,this);
@@ -283,12 +314,13 @@ class scene_05 extends Phaser.Scene{
         
 
         function openDoor(){
-            if(crystal_explo == true){
+            if(crystal_explo == true && activeDoor == false){
                 console.log("ok");
                 door_explo_01.body.setAllowGravity(true);
                 door_explo_01.setCollideWorldBounds(true);
                 door_explo_01.body.immovable = false;
                 door_explo_01.setVelocityX(-500);
+                particles_door1.emitParticleAt(door_explo_01.x,door_explo_01.y);   
             }
         }
         
@@ -321,13 +353,42 @@ class scene_05 extends Phaser.Scene{
         }, this);
 
         crystal_power_up.anims.play('crystal');
+
+        if(end_s4 == true){
+            player.x = 1680;//550
+            player.y = 925;//2013
+        }
     }
     
 
     update(){
 
+        if(compteur_cam_door == 0){
+            compteur_cam_door = 250;
+        }
+
+    if( camera_door == true){
+        const cam_door = this.cameras.main;
+        if(compteur_cam_door > 0 && etat_cam_door == true){
+            compteur_cam_door --;
+            cam_door.pan(1883, 925, 2000);
+        }         
+    }
+    if(compteur_cam_door <= 0){
+        this.cameras.main.pan(2406, 285, 2000);
+        etat_cam_door = false;
+    }
+
+        if(activeDoor == true){
+            door_explo_01.setVelocityY(100)
+            if(door_explo_01.y == 875){
+                activeDoor = false;
+            }
+        }
+
         if(player.y >= 2200){
             this.scene.start("scene_04");
+            end_vers_s4 = true;
         }
 
         if(door_explo_01.x < 1620){
@@ -373,6 +434,7 @@ class scene_05 extends Phaser.Scene{
                 dash = true;
             }
             else if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
+                console.log(wall_climb);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
                 textX.setText(player.x);
@@ -380,26 +442,38 @@ class scene_05 extends Phaser.Scene{
                 player.direction = 'left';
                 player.flipX = true;
                 if(crystal_explo == false){
-                    player.anims.play('climb', true);
+                    player.anims.play('climb',true);
                 }
                 else{
-                    player.anims.play('climb_crystal', true);
+                    player.anims.play('climb_crystal',true);
                 }
             }
-            else if (keyQ.isDown){
-                emitter_particles_player.startFollow(player);
+            else if (keyQ.isDown && player.body.blocked.down){
                 player.setVelocityX(-350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                player.setBounce(0.1);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
-                    player.anims.play('run', true);
+                    player.anims.play('run',true);
                 }
                 else{
-                    player.anims.play('run_crystal', true);
+                    player.anims.play('run_crystal',true);
                 }
             }
+            else if(keyZ.isDown && keyQ.isDown){
+                player.setVelocityX(-350);
+                player.flipX = true;
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
+            }
+            
         }
         else if (keyD.isDown){
             if(keyD.isDown && space.isDown && etat_dash == true && etat_power_up_dash == true){
@@ -417,39 +491,43 @@ class scene_05 extends Phaser.Scene{
                 player.direction = 'right';
                 player.flipX = false;
                 if(crystal_explo == false){
-                    player.anims.play('climb', true);
+                    player.anims.play('climb',true);
                 }
                 else{
-                    player.anims.play('climb_crystal', true);
+                    player.anims.play('climb_crystal',true);
                 }
             }
-            else if (keyD.isDown) {
-                emitter_particles_player.startFollow(player);
+            else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
-                    player.anims.play('run', true);
+                    player.anims.play('run',true);
                 }
                 else{
-                    player.anims.play('run_crystal', true);
+                    player.anims.play('run_crystal',true);
                 }
             }
+            else if(keyZ.isDown && keyD.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(350);
+                player.flipX = false;
+            }
+            /*else if (keyD.isDown){
+                player.anims.play('jump', true);
+                player.flipX = false;
+            }*/
             
         }
-        else if(Phaser.Input.Keyboard.JustDown(keyS)){
-            player.setVelocityY(500);
-            textX.setText(player.x);
-            textY.setText(player.y);
-        }
-        else  {
-            emitter_particles_player.stopFollow(player);
+        else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
             player.setRotation(0);
+            emitter_particles_player.stopFollow(player);
             if(crystal_explo == false){
                 player.anims.play('idle', true);
             }
@@ -459,8 +537,12 @@ class scene_05 extends Phaser.Scene{
         }
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            if(crystal_explo == false){
+                player.anims.play('jump',true);
+            }
+            else{
+                player.anims.play('jump_crystal',true);
+            }
         }
 
     }
@@ -476,8 +558,8 @@ function climbOff(){
 }
 
 function trap(){
-    player.x = 102;
-    player.y = 804;
+    player.x = 90;
+    player.y = 349;
 }
 
 function dashOn(){
@@ -561,11 +643,18 @@ function tire_explo(player,pointer) {
 function destroy_bullet(){
     bullet.destroy(true,true);
     emitter_particles_bullet.stopFollow(bullet);
+}
+
+function destroy_bullet_explo(){
+    bullet.destroy(true,true);
     emitter_particles_bullet_explo.stopFollow(bullet);
 }
+
 
 function activeExplo(){
     etat_explo = true;
     crystal_power_up.destroy(true,true);
+    activeDoor = true;
+    camera_door = true;
 }
 

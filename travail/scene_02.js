@@ -15,10 +15,6 @@ var compteur_mush = 150;
 var relance_poison = 150;
 var target = new Phaser.Math.Vector2();
 
-var etat_dash = true;
-var compteur_dash = 50;
-var relance_dash = 150;
-
 var textDash;
 
 var anim_mush_02 = true;
@@ -82,7 +78,7 @@ class scene_02 extends Phaser.Scene{
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy = this.physics.add.group();
 
-        player = this.physics.add.sprite(100,100,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(100,500,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -132,6 +128,13 @@ class scene_02 extends Phaser.Scene{
             key: 'idle',
             frames: this.anims.generateFrameNumbers('player', { start: 35, end: 40 }),
             frameRate: 5,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'jump',
+            frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
+            frameRate: 8,
             repeat: 0
         });
 
@@ -215,16 +218,14 @@ class scene_02 extends Phaser.Scene{
         textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         texteBanane = this.add.text(-350,-90, scoreCrystal,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        //textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
 
 
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
-        this.physics.add.overlap(player,zone_enemy_02,hit_player,null,this);
+        this.physics.add.overlap(player,mush_poison,hit_player,null,this);
         this.physics.add.overlap(player,zone_enemy_02,anim_mush,null,this);
-        //this.physics.add.collider(player,zone_enemy_03,agro_enemy_03,null,this);
         this.physics.add.collider(enemy_01,ground_02_s2);
         this.physics.add.collider(enemy_02,ground_02_s2);
-        //this.physics.add.collider(enemy_03,ground_02_s2);
         this.physics.add.collider(lever_s2,player, leverOn_s2,null,this);
         this.physics.add.collider(ground_02_s2,player, climbOff,null,this);
         this.physics.add.collider(player,ground_02_s2);
@@ -234,14 +235,6 @@ class scene_02 extends Phaser.Scene{
 
         target.x = 1410;
         target.y = 932;
-
-        /*this.input.on('pointerdown', function () {
-            dash(player);
-        }, this);*/
-
-        
-            
-        
 
 
     }
@@ -269,14 +262,6 @@ class scene_02 extends Phaser.Scene{
             }
         }
 
-        if(etat_dash == false && relance_dash > 0){ 
-            relance_dash --;
-            if(relance_dash <= 0 ){
-                compteur_dash = 50;
-                relance_dash = 150;
-                etat_dash = true;
-            }
-        }
 
         zone_enemy_01.body.debugBodyColor = zone_enemy_01.body.touching.none ? 0x00ffff : 0xffff00;
         zone_enemy_02.body.debugBodyColor = zone_enemy_02.body.touching.none ? 0x00ffff : 0xffff00;
@@ -300,7 +285,7 @@ class scene_02 extends Phaser.Scene{
                 compteur_cam = 250;
             }
 
-        if( camera_block == true){
+        if(camera_block == true){
             const cam = this.cameras.main;
             if(compteur_cam > 0 && etat_cam == true){
                 compteur_cam --;
@@ -326,25 +311,29 @@ class scene_02 extends Phaser.Scene{
                 player.direction = 'left';
                 player.flipX = true;
             }
-            else if (keyQ.isDown){
-                console.log(wall_climb);
+            else if (keyQ.isDown && player.body.blocked.down){
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
                 player.setBounce(0.1);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyQ.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(-350);
+                player.flipX = true;
+            }
+            /*else if (keyQ.isDown){
+                player.anims.play('jump', true);
+                player.flipX = true;
+            }*/
         }
         else if (keyD.isDown){
-            if(keyD.isDown && space.isDown && etat_dash == true){
-                dashOn();
-                player.setVelocityX(800);
-                textDash.setText(compteur_dash);
-            }
 
-            else if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
+            if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
                 player.setVelocityY(-250);
                 player.setVelocityX(350);
                 player.anims.play('climb',true);
@@ -353,33 +342,37 @@ class scene_02 extends Phaser.Scene{
                 player.direction = 'right';
                 player.flipX = false;
             }
-            else if (keyD.isDown) {
+            else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
-                textX.setText(player.x);
-                textY.setText(player.y);
+                //textX.setText(player.x);
+                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 player.anims.play('run', true);
+                emitter_particles_player.startFollow(player);
             }
+            else if(keyZ.isDown && keyD.isDown){
+                player.anims.play('jump', true);
+                player.setVelocityX(350);
+                player.flipX = false;
+            }
+            /*else if (keyD.isDown){
+                player.anims.play('jump', true);
+                player.flipX = false;
+            }*/
             
         }
-        else if(Phaser.Input.Keyboard.JustDown(keyS)){
-            player.setVelocityY(500);
-            textX.setText(player.x);
-            textY.setText(player.y);
-        }
-        else  {
+        else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            //textX.setText(player.x);
+            //textY.setText(player.y);
             player.setRotation(0);
+            emitter_particles_player.stopFollow(player);
             player.anims.play('idle', true);
         }
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
-            player.setBounce(0.1);
-            textX.setText(player.x);
-            textY.setText(player.y);
+            player.anims.play('jump',true);
         }
     }
 }
@@ -392,7 +385,7 @@ function climbOff(){
     wall_climb = false
 }
 
-function leverOn_s2(block){
+function leverOn_s2(){
     if(keyE.isDown && camera_block == false && active_lever_02 == false){
         active_lever_02 = true;
         camera_block = true;
@@ -449,12 +442,5 @@ function anim_mush(){
 }
 
 
-function dashOn(){
-    if(compteur_dash == 0){
-        etat_dash = false;
-    }
-    else if(etat_dash == true ){
-        compteur_dash --
-    }
-}
+
 
