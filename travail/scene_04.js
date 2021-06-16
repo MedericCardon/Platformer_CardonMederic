@@ -1,5 +1,3 @@
-etat_power_up_dash = true;
-
 
 var shift_block_01_s4;
 var shift_block_02_s4;
@@ -145,14 +143,13 @@ class scene_04 extends Phaser.Scene{
 
         this.add.image(0,0,'foreground_s4').setOrigin(0);
         const ground_02_s4 = map.createLayer('ground_02_s4', tileset,0,0);
-        const trap_s4 = map.createLayer('trap_s4', tileset,0,0);
         const ground_01_s4 = map.createLayer('ground_01_s4', tileset,0,0);
-        
+        const trap_s4 = map.createLayer('trap_s4', tileset,0,0);
         const wall_s4 = map.createLayer('wall_s4', tileset,0,0);
 
         ground_02_s4.setCollisionByExclusion(-1, true);
         wall_s4.setCollisionByExclusion(-1, true);
-        trap_s4.setCollisionByExclusion(-1, true);
+        
 
         this.anims.create({
             key: 'run',
@@ -177,14 +174,14 @@ class scene_04 extends Phaser.Scene{
             key: 'jump',
             frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
             frameRate: 8,
-            repeat: 0
+            repeat: -1
         });
 
         this.anims.create({
             key: 'jump_crystal',
             frames: this.anims.generateFrameNumbers('player', { start: 88, end: 93 }),
             frameRate: 8,
-            repeat: 0
+            repeat: -1
         });
         this.anims.create({
             key: 'run_crystal',
@@ -200,7 +197,7 @@ class scene_04 extends Phaser.Scene{
         });
         this.anims.create({
             key: 'idle_crystal',
-            frames: this.anims.generateFrameNumbers('player', { start: 76, end: 83 }),
+            frames: this.anims.generateFrameNumbers('player', { start: 76, end: 81 }),
             frameRate: 7,
             repeat: 0
         });
@@ -298,8 +295,8 @@ class scene_04 extends Phaser.Scene{
         }
 
         if(end_vers_s4 == true){
-            player.x = 2900;//760
-            player.y = 2077;//100
+            player.x = 760;//760
+            player.y = 100;//100
         }
 
         this.input.on('pointerup', function () {
@@ -320,6 +317,8 @@ class scene_04 extends Phaser.Scene{
     
 
     update(){
+
+        etat_power_up_dash = true;
 
         if(door_explo.x >= 3539){
             door_explo.destroy(true,true);
@@ -392,12 +391,24 @@ class scene_04 extends Phaser.Scene{
             dash = false;
         }
 
-        if(keyQ.isDown){
+        if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
+            player.setVelocityY(-500);
+            emitter_particles_player.startFollow(player);
+            if(crystal_explo == false){
+                player.anims.play('jump',true);
+            }
+            else{
+                player.anims.play('jump_crystal',true);
+            }
+        }
+
+        else if(keyQ.isDown){
             if(keyQ.isDown && space.isDown && etat_dash == true && etat_power_up_dash == true){
                 dashOn();
                 player.setVelocityX(-800);
                 textDash.setText(compteur_dash);
                 dash = true;
+                emitter_particles_player.startFollow(player);
             }
             else if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
                 console.log(wall_climb);
@@ -407,6 +418,7 @@ class scene_04 extends Phaser.Scene{
                 textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('climb',true);
                 }
@@ -432,6 +444,18 @@ class scene_04 extends Phaser.Scene{
             else if(keyZ.isDown && keyQ.isDown){
                 player.setVelocityX(-350);
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
+            }
+            else if (keyQ.isDown){
+                player.setVelocityX(-350);
+                player.flipX = true;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('jump',true);
                 }
@@ -447,6 +471,7 @@ class scene_04 extends Phaser.Scene{
                 player.setVelocityX(800);
                 textDash.setText(compteur_dash);
                 dash = true;
+                emitter_particles_player.startFollow(player);
             }
 
             else if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
@@ -456,6 +481,7 @@ class scene_04 extends Phaser.Scene{
                 textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('climb',true);
                 }
@@ -478,14 +504,27 @@ class scene_04 extends Phaser.Scene{
                 }
             }
             else if(keyZ.isDown && keyD.isDown){
-                player.anims.play('jump', true);
                 player.setVelocityX(350);
                 player.flipX = false;
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
             }
-            /*else if (keyD.isDown){
-                player.anims.play('jump', true);
+            else if (keyD.isDown){
+                player.setVelocityX(350);
                 player.flipX = false;
-            }*/
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
+            }
             
         }
         else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
@@ -500,15 +539,7 @@ class scene_04 extends Phaser.Scene{
             else{
                 player.anims.play('idle_crystal', true);
             }
-        }
-        if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
-            player.setVelocityY(-500);
-            if(crystal_explo == false){
-                player.anims.play('jump',true);
-            }
-            else{
-                player.anims.play('jump_crystal',true);
-            }
+            
         }
 
     }

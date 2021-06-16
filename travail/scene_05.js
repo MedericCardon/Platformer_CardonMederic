@@ -1,4 +1,3 @@
-etat_power_up_dash = true;
 
 var tween_elevator_s5;
 var tween_ground_elevator_s5;
@@ -164,10 +163,9 @@ class scene_05 extends Phaser.Scene{
         const elevator_s5 = map.createLayer('elevator_s5', tileset,0,0);
         const ground_elevator_s5 = map.createLayer('ground_elevator_s5', tileset,0,0);
         const ground_02_s5 = map.createLayer('ground_02_s5', tileset,0,0);
-        const trap_s5 = map.createLayer('trap_s5', tileset,0,0);
         const ground_01_s5 = map.createLayer('ground_01_s5', tileset,0,0);
+        const trap_s5 = map.createLayer('trap_s5', tileset,0,0);
         const wall_s5 = map.createLayer('wall_s5', tileset,0,0);
-        const water_s5 = map.createLayer('water_s5', tileset,0,0);
         const lever_s5 = map.createLayer('lever_s5', tileset,0,0);
 
 
@@ -180,7 +178,6 @@ class scene_05 extends Phaser.Scene{
         wall_s5.setCollisionByExclusion(-1, true);
         trap_s5.setCollisionByExclusion(-1, true);
         elevator_s5.setCollisionByExclusion(-1, true);
-        water_s5.setCollisionByExclusion(-1, true);
         ground_elevator_s5.setCollisionByExclusion(-1, true);
         lever_s5.setCollisionByExclusion(-1, true);
 
@@ -225,7 +222,14 @@ class scene_05 extends Phaser.Scene{
             key: 'jump',
             frames: this.anims.generateFrameNumbers('player', { start: 82, end: 87 }),
             frameRate: 8,
-            repeat: 0
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'jump_crystal',
+            frames: this.anims.generateFrameNumbers('player', { start: 88, end: 93 }),
+            frameRate: 8,
+            repeat: -1
         });
 
         this.anims.create({
@@ -242,7 +246,7 @@ class scene_05 extends Phaser.Scene{
         });
         this.anims.create({
             key: 'idle_crystal',
-            frames: this.anims.generateFrameNumbers('player', { start: 76, end: 83 }),
+            frames: this.anims.generateFrameNumbers('player', { start: 76, end: 81 }),
             frameRate: 7,
             repeat: 0
         });
@@ -291,14 +295,12 @@ class scene_05 extends Phaser.Scene{
         this.physics.add.collider(groupeBullets,ground_02_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,ground_01_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall_s5, destroy_bullet,null,this);
-        this.physics.add.collider(groupeBullets,water_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet,null,this);
 
         this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,ground_02_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,ground_01_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,wall_s5, destroy_bullet_explo,null,this);
-        this.physics.add.collider(groupeBullets,water_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet_explo,null,this);
 
         this.physics.add.collider(lever_s5,player, activeElevator_s5,null,this);
@@ -355,13 +357,15 @@ class scene_05 extends Phaser.Scene{
         crystal_power_up.anims.play('crystal');
 
         if(end_s4 == true){
-            player.x = 1680;//550
-            player.y = 925;//2013
+            player.x = 550;//550
+            player.y = 2013;//2013
         }
     }
     
 
     update(){
+
+        etat_power_up_dash = true;
 
         if(compteur_cam_door == 0){
             compteur_cam_door = 250;
@@ -426,12 +430,25 @@ class scene_05 extends Phaser.Scene{
             dash = false;
         }
 
-        if(keyQ.isDown){
+
+        if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
+            player.setVelocityY(-500);
+            emitter_particles_player.startFollow(player);
+            if(crystal_explo == false){
+                player.anims.play('jump',true);
+            }
+            else{
+                player.anims.play('jump_crystal',true);
+            }
+        }
+
+        else if(keyQ.isDown){
             if(keyQ.isDown && space.isDown && etat_dash == true && etat_power_up_dash == true){
                 dashOn();
                 player.setVelocityX(-800);
                 textDash.setText(compteur_dash);
                 dash = true;
+                emitter_particles_player.startFollow(player);
             }
             else if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
                 console.log(wall_climb);
@@ -441,6 +458,7 @@ class scene_05 extends Phaser.Scene{
                 textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('climb',true);
                 }
@@ -466,6 +484,18 @@ class scene_05 extends Phaser.Scene{
             else if(keyZ.isDown && keyQ.isDown){
                 player.setVelocityX(-350);
                 player.flipX = true;
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
+            }
+            else if (keyQ.isDown){
+                player.setVelocityX(-350);
+                player.flipX = true;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('jump',true);
                 }
@@ -481,6 +511,7 @@ class scene_05 extends Phaser.Scene{
                 player.setVelocityX(800);
                 textDash.setText(compteur_dash);
                 dash = true;
+                emitter_particles_player.startFollow(player);
             }
 
             else if(keyD.isDown && keyZ.isDown && player.body.blocked.right && wall_climb == true){
@@ -490,6 +521,7 @@ class scene_05 extends Phaser.Scene{
                 textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
+                emitter_particles_player.startFollow(player);
                 if(crystal_explo == false){
                     player.anims.play('climb',true);
                 }
@@ -512,14 +544,27 @@ class scene_05 extends Phaser.Scene{
                 }
             }
             else if(keyZ.isDown && keyD.isDown){
-                player.anims.play('jump', true);
                 player.setVelocityX(350);
                 player.flipX = false;
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
             }
-            /*else if (keyD.isDown){
-                player.anims.play('jump', true);
+            else if (keyD.isDown){
+                player.setVelocityX(350);
                 player.flipX = false;
-            }*/
+                emitter_particles_player.startFollow(player);
+                if(crystal_explo == false){
+                    player.anims.play('jump',true);
+                }
+                else{
+                    player.anims.play('jump_crystal',true);
+                }
+            }
             
         }
         else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
@@ -535,15 +580,7 @@ class scene_05 extends Phaser.Scene{
                 player.anims.play('idle_crystal', true);
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
-            player.setVelocityY(-500);
-            if(crystal_explo == false){
-                player.anims.play('jump',true);
-            }
-            else{
-                player.anims.play('jump_crystal',true);
-            }
-        }
+        
 
     }
 }
