@@ -20,6 +20,9 @@ var door_explo;
 var particles_door;
 var emitter_door;
 
+var crystal_loot_s4;
+var tween_crystal_loot_s4;
+
 
 
 class scene_04 extends Phaser.Scene{
@@ -135,6 +138,20 @@ class scene_04 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
+        particles = this.add.particles('particles_bullet')
+            particles.createEmitter({
+            //frame: 'particles_bullet',
+            x: 600, y: 450,
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 64 },
+            speed: 50,
+            quantity: 64,
+            scale: { start: 10, end: 0.2 },
+            frequency: 32,
+            on:false,
+            blendMode: 'ADD'
+        });
+
         
 
         this.add.image(0,0,'end_01_s4').setOrigin(0);
@@ -248,8 +265,20 @@ class scene_04 extends Phaser.Scene{
         shift_block_03_s4.setCollideWorldBounds(true);
         shift_block_03_s4.body.immovable = true;
 
+        crystal_loot_s4 = this.physics.add.sprite(2620,1280,'crystal_loot');
+        crystal_loot_s4.body.setAllowGravity(false);
+
+        tween_crystal_loot_s4 = this.tweens.add({
+            targets: crystal_loot_s4,
+            y:  1250,
+            duration: 3000,
+            //paused: true,
+            yoyo : true,
+            repeat: -1,
+        }); 
 
 
+        this.physics.add.overlap(player,crystal_loot_s4,lootCrystal_s4,null,this);
         this.physics.add.overlap(door_explo,groupeBullets,openDoor1,null,this);
         this.physics.add.collider(groupeBullets,ground_02_s4, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,ground_01_s4, destroy_bullet,null,this);
@@ -312,11 +341,287 @@ class scene_04 extends Phaser.Scene{
                 emitter_particles_bullet_explo.startFollow(bullet);
             }
         }, this);
+
+        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
+        barre_energie_01.body.setAllowGravity(false);
+        barre_energie_01.setScale(1);
+
+        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0);
+        barre_energie_02.body.setAllowGravity(false);
+        barre_energie_02.setScale(1);
+
+        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0);
+        barre_energie_03.body.setAllowGravity(false);
+        barre_energie_03.setScale(1);
+
+        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0);
+        barre_energie_04.body.setAllowGravity(false);
+        barre_energie_04.setScale(1);
+
+        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0);
+        barre_energie_05.body.setAllowGravity(false);
+        barre_energie_05.setScale(1);
+
+        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0);
+        barre_energie_06.body.setAllowGravity(false);
+        barre_energie_06.setScale(1);
+
+        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0);
+        barre_energie_07.body.setAllowGravity(false);
+        barre_energie_07.setScale(1);
+
+        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0);
+        barre_energie_08.body.setAllowGravity(false);
+        barre_energie_08.setScale(1);
+
+        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0);
+        barre_energie_09.body.setAllowGravity(false);
+        barre_energie_09.setScale(1);
+
+        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
+        ligne_energie.body.setAllowGravity(false);
+        ligne_energie.setScale(1);
+
+        centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
+        centre_pdv.body.setAllowGravity(false);
+        centre_pdv.setScale(1.3);
+
+        pdv_01 = this.physics.add.sprite(-280,-97,'pdv1').setScrollFactor(0);
+        pdv_01.body.setAllowGravity(false);
+        pdv_01.setScale(1.3);
+
+        tween_pdv_01 = this.tweens.add({
+            targets: pdv_01,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_02 = this.physics.add.sprite(-245,-105,'pdv2').setScrollFactor(0);
+        pdv_02.body.setAllowGravity(false);
+        pdv_02.setScale(1.3);
+
+        tween_pdv_02 = this.tweens.add({
+            targets: pdv_02,
+            y: -110,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_03 = this.physics.add.sprite(-225,-80,'pdv3').setScrollFactor(0);
+        pdv_03.body.setAllowGravity(false);
+        pdv_03.setScale(1.3);
+
+        tween_pdv_03 = this.tweens.add({
+            targets: pdv_03,
+            x: -220,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_04 = this.physics.add.sprite(-245,-45,'pdv4').setScrollFactor(0);
+        pdv_04.body.setAllowGravity(false);
+        pdv_04.setScale(1.3);
+
+        tween_pdv_04 = this.tweens.add({
+            targets: pdv_04,
+            y: -40,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_05 = this.physics.add.sprite(-280,-55,'pdv5').setScrollFactor(0);
+        pdv_05.body.setAllowGravity(false);
+        pdv_05.setScale(1.3);
+
+        tween_pdv_05 = this.tweens.add({
+            targets: pdv_05,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
     }
 
     
 
     update(){
+
+        if(playerHp == 5){
+            pdv_01.setAlpha(1);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+        }
+        else if(playerHp == 4){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+
+        }
+        else if(playerHp == 3){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+
+        }
+        else if(playerHp == 2){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+
+        }
+        else if(playerHp == 1){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+        } 
+        else if(playerHp == 0){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(0.3);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+            tween_pdv_05.stop();
+        } 
+
+        if (scoreCrystal == 9){
+            barre_energie_01.setAlpha(1);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 8){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 7){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 6){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 5){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 4){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 3){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 2){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 1){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 0){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(0.3);
+        }
 
         etat_power_up_dash = true;
 
@@ -327,7 +632,7 @@ class scene_04 extends Phaser.Scene{
         if(bulletOn == false){ // relance du compteur des projectiles //
             compteurBullet-- ;
             if(compteurBullet == 0){
-                compteurBullet = 50;
+                compteurBullet = 160;
                 bulletOn = true ;
             }
         }
@@ -656,4 +961,19 @@ function openDoor1(){
         door_explo.setVelocityX(500);
         particles_door.emitParticleAt(door_explo.x,door_explo.y);   
     }
+}
+
+function lootCrystal_s4(){
+    crystal_loot_s4.destroy(true,true);
+    scoreCrystal = 9;
+}
+
+function lose_life(){
+    
+    if(invincible == false){
+        playerHp -= 1;
+        invincible = true;
+    }
+    
+    
 }

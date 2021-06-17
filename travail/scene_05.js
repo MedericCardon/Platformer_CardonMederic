@@ -28,6 +28,38 @@ var camera_door = false;
 var particles_door1;
 var emitter_door1;
 
+var enemy_s5;
+var zone_enemy_s5;
+var tween_enemy_s5;
+var anim_mush_02_s5 = true;
+
+var mush_poison_s5;
+var etat_poison_s5 = true;
+var compteur_mush_s5 = 0;
+var relance_poison_s5 = 120;
+var target_mush_s5 = new Phaser.Math.Vector2();
+
+var enemy_s5_direction_right = true;
+var enemy_s5_direction_left = false;
+
+
+var enemy_03_s5;
+var zone_enemy_03_s5;
+var enemy_03_agro_s5 = false;
+var etat_enemy_03_s5 = true;
+var compteurEnemy_03_s5 = 100; // par défaut: 150 //
+var invincibleEnemy_03_s5 = false;
+var enemyHp_03_s5 = 2;
+var anims_enemy_03_s5 = true;
+
+var enemy_03_right_s5 = true;
+var enemy_03_left_s5 = false;
+
+var groupeBulletsEnemy_03_s5;
+var etat_bullet_enemy_03_s5 = true;
+var bulletEnemy_03_s5;
+var compteurBulletEnemy_03_s5 = 150;
+var bulletEnemyOn_03_s5 = true;
 
 class scene_05 extends Phaser.Scene{
     constructor(){
@@ -59,6 +91,9 @@ class scene_05 extends Phaser.Scene{
         this.load.spritesheet('crystal_explo_anim','assets/scene_05/spriteSheet_crystal_explo.png',{ frameWidth: 150, frameHeight: 150 });
         this.load.image('end_s5','assets/scene_05/end_s5.png');
         this.load.image('particles_end','assets/particules_end.png');
+        this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 197, frameHeight: 197 });
+        this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 316 });
+        this.load.spritesheet('enemy_03','assets/mush_03.png',{ frameWidth: 183, frameHeight: 288 });
     }
 
     create(){
@@ -76,6 +111,7 @@ class scene_05 extends Phaser.Scene{
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
 
         groupeBullets = this.physics.add.group();
+        groupeBulletsEnemy_03_s5 = this.physics.add.group();
        
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -87,6 +123,20 @@ class scene_05 extends Phaser.Scene{
             quantity: 2,
             scale: { start: 1, end: 0.2 },
             blendMode: 'ADD',
+        });
+
+        particles = this.add.particles('particles_bullet')
+            particles.createEmitter({
+            //frame: 'particles_bullet',
+            x: 600, y: 450,
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 64 },
+            speed: 50,
+            quantity: 64,
+            scale: { start: 10, end: 0.2 },
+            frequency: 32,
+            on:false,
+            blendMode: 'ADD'
         });
 
         particles_bullet = this.add.particles('particles_bullet');
@@ -124,7 +174,7 @@ class scene_05 extends Phaser.Scene{
             on: false
         });
 
-        player = this.physics.add.sprite(90,349,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//start1 : 90,349, start2 : 550,2013
+        player = this.physics.add.sprite(3061,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//start1 : 90,349, start2 : 550,2013
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -157,6 +207,37 @@ class scene_05 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
+        target_mush_s5.x = 1940;
+        target_mush_s5.y = 2141;
+
+        enemy_s5 = this.physics.add.sprite(1940,2041,'enemy_02');/*.setSize(90,70);*/
+        enemy_s5.body.setAllowGravity(true);
+        enemy_s5.setCollideWorldBounds(true);
+        enemy_s5.setScale(0.6);
+
+        zone_enemy_s5 = this.add.zone(1940, 2041).setSize(1000, 300);
+        this.physics.world.enable(zone_enemy_s5);
+        zone_enemy_s5.body.setAllowGravity(false);
+        zone_enemy_s5.body.moves = false;
+
+        enemy_03_s5 = this.physics.add.sprite(2400,900,'enemy_03');/*.setSize(90,70);*/
+        enemy_03_s5.body.setAllowGravity(true);
+        enemy_03_s5.setCollideWorldBounds(true);
+        enemy_03_s5.setScale(0.6);
+        enemy_03_s5.setSize(140,242);
+
+        this.anims.create({
+            key: 'walk_enemy_03',
+            frames: this.anims.generateFrameNumbers('enemy_03', { start: 0, end: 19}),
+            frameRate: 15,
+            repeat: 0
+        });
+
+        zone_enemy_03_s5 = this.add.zone(2400, 925).setSize(1000, 200);
+        this.physics.world.enable(zone_enemy_03_s5);
+        zone_enemy_03_s5.body.setAllowGravity(false);
+        zone_enemy_03_s5.body.moves = false;
+
         
 
         this.add.image(0,0,'foreground_s5').setOrigin(0);
@@ -168,9 +249,10 @@ class scene_05 extends Phaser.Scene{
         const wall_s5 = map.createLayer('wall_s5', tileset,0,0);
         const lever_s5 = map.createLayer('lever_s5', tileset,0,0);
 
+        mush_poison_s5 = this.physics.add.sprite(enemy_s5.x , enemy_s5.y - 75,'mush_cloud').setScale(1.5);
+        mush_poison_s5.body.setAllowGravity(false);
+        mush_poison_s5.setAlpha(0);
 
-        
-        
         this.add.image(0,0,'end_s5').setOrigin(0);
         
 
@@ -258,6 +340,27 @@ class scene_05 extends Phaser.Scene{
             repeat: -1
         });
 
+        this.anims.create({
+            key: 'walk_mush_02',
+            frames: this.anims.generateFrameNumbers('enemy_02', { start: 0, end: 34 }),
+            frameRate: 35,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'hide',
+            frames: this.anims.generateFrameNumbers('enemy_02', { start: 35, end: 44 }),
+            frameRate: 25,
+            repeat: 0
+        });
+
+        this.anims.create({
+            key: 'cloud',
+            frames: this.anims.generateFrameNumbers('mush_cloud', { start: 0, end: 6 }),
+            frameRate: 7,
+            repeat: 0
+        });
+
         /*enemy_04 = this.physics.add.sprite(3300,2000,'enemy');/*.setSize(90,70);*/
         /*enemy_04.body.setAllowGravity(true);
         enemy_04.setCollideWorldBounds(true);
@@ -286,9 +389,16 @@ class scene_05 extends Phaser.Scene{
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
         
+        this.physics.add.overlap(groupeBulletsEnemy_03_s5,player, lose_life,null,this);
+        this.physics.add.collider(ground_02_s5,enemy_03_s5);
+        this.physics.add.overlap(groupeBullets,enemy_03_s5, killEnemy03_s5,null,this);
+        this.physics.add.overlap(player, zone_enemy_03_s5,agro_enemy_03_s5,null,this);
+        this.physics.add.overlap(player, zone_enemy_03_s5,shot_enemy_s5,null,this);
 
+        this.physics.add.overlap(player,zone_enemy_s5,poison_s5,null,this);
+        this.physics.add.overlap(player,mush_poison_s5,hit_player_s5,null,this);
+        this.physics.add.overlap(player,zone_enemy_s5,anim_mush_s5,null,this);
 
-        
         this.physics.add.overlap(door_explo_01,groupeBullets,openDoor,null,this);
         this.physics.add.overlap(crystal_power_up,player,activeExplo,null,this);
         this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet,null,this);
@@ -307,6 +417,7 @@ class scene_05 extends Phaser.Scene{
         
         this.physics.add.collider(wall_s5,player, climbOn,null,this);
         this.physics.add.collider(ground_02_s5,player, climbOff,null,this);
+        this.physics.add.collider(ground_02_s5,enemy_s5);
         this.physics.add.collider(trap_s5,player, trap,null,this);
         this.physics.add.collider(elevator_s5,player);
         
@@ -343,13 +454,13 @@ class scene_05 extends Phaser.Scene{
         this.input.on('pointerup', function () {
             if(crystal_explo == false){
                 tirer(player);
-                //energy();
+                energy();
                 emitter_particles_bullet.startFollow(bullet);
             }
             
             else {
                 tire_explo(player);
-                //energy();
+                energy();
                 emitter_particles_bullet_explo.startFollow(bullet);
             }
         }, this);
@@ -360,10 +471,371 @@ class scene_05 extends Phaser.Scene{
             player.x = 550;//550
             player.y = 2013;//2013
         }
+
+        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
+        barre_energie_01.body.setAllowGravity(false);
+        barre_energie_01.setScale(1);
+
+        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0);
+        barre_energie_02.body.setAllowGravity(false);
+        barre_energie_02.setScale(1);
+
+        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0);
+        barre_energie_03.body.setAllowGravity(false);
+        barre_energie_03.setScale(1);
+
+        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0);
+        barre_energie_04.body.setAllowGravity(false);
+        barre_energie_04.setScale(1);
+
+        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0);
+        barre_energie_05.body.setAllowGravity(false);
+        barre_energie_05.setScale(1);
+
+        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0);
+        barre_energie_06.body.setAllowGravity(false);
+        barre_energie_06.setScale(1);
+
+        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0);
+        barre_energie_07.body.setAllowGravity(false);
+        barre_energie_07.setScale(1);
+
+        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0);
+        barre_energie_08.body.setAllowGravity(false);
+        barre_energie_08.setScale(1);
+
+        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0);
+        barre_energie_09.body.setAllowGravity(false);
+        barre_energie_09.setScale(1);
+
+        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
+        ligne_energie.body.setAllowGravity(false);
+        ligne_energie.setScale(1);
+
+        centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
+        centre_pdv.body.setAllowGravity(false);
+        centre_pdv.setScale(1.3);
+
+        pdv_01 = this.physics.add.sprite(-280,-97,'pdv1').setScrollFactor(0);
+        pdv_01.body.setAllowGravity(false);
+        pdv_01.setScale(1.3);
+
+        tween_pdv_01 = this.tweens.add({
+            targets: pdv_01,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_02 = this.physics.add.sprite(-245,-105,'pdv2').setScrollFactor(0);
+        pdv_02.body.setAllowGravity(false);
+        pdv_02.setScale(1.3);
+
+        tween_pdv_02 = this.tweens.add({
+            targets: pdv_02,
+            y: -110,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_03 = this.physics.add.sprite(-225,-80,'pdv3').setScrollFactor(0);
+        pdv_03.body.setAllowGravity(false);
+        pdv_03.setScale(1.3);
+
+        tween_pdv_03 = this.tweens.add({
+            targets: pdv_03,
+            x: -220,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_04 = this.physics.add.sprite(-245,-45,'pdv4').setScrollFactor(0);
+        pdv_04.body.setAllowGravity(false);
+        pdv_04.setScale(1.3);
+
+        tween_pdv_04 = this.tweens.add({
+            targets: pdv_04,
+            y: -40,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_05 = this.physics.add.sprite(-280,-55,'pdv5').setScrollFactor(0);
+        pdv_05.body.setAllowGravity(false);
+        pdv_05.setScale(1.3);
+
+        tween_pdv_05 = this.tweens.add({
+            targets: pdv_05,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
     }
     
 
     update(){
+
+        if(invincibleEnemy_03_s5 == true){ // relance du compteur d'invulné player //
+            compteurEnemy_03_s5-- ;
+            if(compteurEnemy_03_s5 == 0){
+                enemy_03_s5.setTint(0xffffff);
+                compteurEnemy_03_s5 = 100;
+                invincibleEnemy_03_s5 = false ;
+            }
+        }
+
+        if(bulletEnemyOn_03_s5 == false){ // relance du compteur des projectiles //
+            compteurBulletEnemy_03_s5 -- ;
+            if(compteurBulletEnemy_03_s5 == 0){
+                compteurBulletEnemy_03_s5  = 150;
+                bulletEnemyOn_03_s5 = true ;
+            }
+        }
+
+        if(zone_enemy_03_s5.body.touching.none){
+            if(anims_enemy_03_s5 == true){
+                enemy_03_agro_s5 = false;
+                enemy_03_s5.body.immovable = true; 
+                enemy_03_s5.anims.play('walk_enemy_03',true);
+
+                if(enemy_03_right_s5 == true){
+                    enemy_03_s5.setVelocityX(70);
+                    enemy_03_s5.flipX = false;
+                }
+                if(enemy_03_s5.body.blocked.right){
+                    enemy_03_s5.setVelocityX(-70);
+                    enemy_03_s5.flipX = true;
+                    enemy_03_right_s5 = false;
+                    enemy_03_left_s5 = true
+                }
+                else if(enemy_03_s5.x < 1888){
+                    enemy_03_s5.setVelocityX(70);
+                    enemy_03_s5.flipX = false;
+                    enemy_03_left_s5 = false;
+                    enemy_03_right_s5 = true;
+                }
+            }
+        }
+
+        if(invincible == true){ // relance du compteur d'invulné player //
+            compteur-- ;
+            if(compteur == 0){
+                compteur = 150;
+                invincible = false;
+            }
+        }
+
+        if(etat_poison_s5 == false && relance_poison_s5 > 0){ 
+            relance_poison_s5 --;
+            if(relance_poison_s5 <= 0 ){
+                compteur_mush_s5 = 120;
+                relance_poison_s5 = 120;
+            }
+        }
+
+        if(zone_enemy_s5.body.touching.none){
+            etat_poison_s5 = false;
+            enemy_s5.anims.play('walk_mush_02',true);
+            //tween_enemy_02.play();
+            mush_poison_s5.setAlpha(0);
+            anim_mush_02_s5 = true;
+            if(enemy_s5_direction_right == true){
+                enemy_s5.setVelocityX(20);
+            }
+            if(enemy_s5.body.blocked.right){
+                enemy_s5.setVelocityX(-20);
+                enemy_s5.flipX = true;
+                enemy_s5_direction_right = false;
+                enemy_s5_direction_left = true
+            }
+            else if(enemy_s5.body.blocked.left){
+                enemy_s5.setVelocityX(20);
+                enemy_s5.flipX = false;
+                enemy_s5_direction_left = false;
+                enemy_s5_direction_right = true;
+            }
+        }
+
+        if(etat_explo == true){
+            crystal_power_up.destroy(true,true); 
+        }
+
+        if(playerHp == 5){
+            pdv_01.setAlpha(1);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+        }
+        else if(playerHp == 4){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+
+        }
+        else if(playerHp == 3){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+
+        }
+        else if(playerHp == 2){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+
+        }
+        else if(playerHp == 1){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+        } 
+        else if(playerHp == 0){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(0.3);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+            tween_pdv_05.stop();
+        } 
+
+        if (scoreCrystal == 9){
+            barre_energie_01.setAlpha(1);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 8){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 7){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 6){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 5){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 4){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 3){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 2){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 1){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 0){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(0.3);
+        }
 
         etat_power_up_dash = true;
 
@@ -402,7 +874,7 @@ class scene_05 extends Phaser.Scene{
         if(bulletOn == false){ // relance du compteur des projectiles //
             compteurBullet-- ;
             if(compteurBullet == 0){
-                compteurBullet = 50;
+                compteurBullet = 160;
                 bulletOn = true ;
             }
         }
@@ -585,6 +1057,62 @@ class scene_05 extends Phaser.Scene{
     }
 }
 
+function agro_enemy_03_s5 (){
+    enemy_03_agro_s5 = true;
+    if(anims_enemy_03_s5 == true){
+        enemy_03_s5.anims.play('walk_enemy_03',true);
+        if(zone_enemy_03_s5.body.touching && enemy_03_agro_s5 == true){
+            enemy_03_s5.body.immovable = false;
+            this.physics.moveToObject(enemy_03_s5, player, 200);
+            enemy_03_right_s5 = true;
+        }
+        if (enemy_03_s5.x > player.x){
+            enemy_03_s5.direction = 'right';
+            enemy_03_s5.flipX = true;
+        }
+        else if(enemy_03_s5.x < player.x){
+            enemy_03_s5.direction = 'left';
+            enemy_03_s5.flipX = false;
+        }
+    }
+}
+
+function shot_enemy_s5() {
+    if(anims_enemy_03_s5 == true){
+        if (bulletEnemyOn_03_s5 == true){
+            var coefDirEnemy_s5;
+            if (enemy_03_s5.direction == 'right') { // determine la direction du joueur //
+                coefDirEnemy_s5 = -1; 
+            } else { 
+                coefDirEnemy_s5 = 1
+            }
+            bulletEnemy_03_s5 = groupeBulletsEnemy_03_s5.create(enemy_03_s5.x + (1 * coefDirEnemy_s5), enemy_03_s5.y - 20, 'banane').setScale(2).setSize(20,20); // permet de créer la carte à coté du joueur //
+            // Physique de la carte //
+            bulletEnemy_03_s5.setCollideWorldBounds(false);
+            bulletEnemy_03_s5.body.allowGravity = true;
+            bulletEnemy_03_s5.setVelocity(400 * coefDirEnemy_s5, -300); // vitesse en x et en y
+            bulletEnemyOn_03_s5 = false;    
+        }
+    }
+}
+
+function killEnemy03_s5(){
+    bullet.destroy(true,true);
+    
+    emitter_particles_bullet.stopFollow(bullet);
+    if(invincibleEnemy_03_s5 == false){
+        enemyHp_03_s5 -=1;
+        enemy_03_s5.setTint(0xff0000);
+        invincibleEnemy_03_s5 = true;
+    }
+    if(enemyHp_03_s5 == 0){
+        enemy_03_s5.destroy(true,true);
+        etat_enemy_03_s5 = false;
+        anims_enemy_03_s5 = false;
+        particles.emitParticleAt(enemy_03_s5.x, enemy_03_s5.y);
+    }
+}
+
 function climbOn(){
     console.log(wall_climb);
     wall_climb = true
@@ -693,5 +1221,51 @@ function activeExplo(){
     crystal_power_up.destroy(true,true);
     activeDoor = true;
     camera_door = true;
+}
+
+function poison_s5(){
+    this.physics.moveToObject(enemy_s5, target_mush_s5, 200);
+    etat_poison_s5 = true;
+    if(compteur_mush_s5 == 0){
+        mush_poison_s5.anims.play('cloud',true);
+        etat_poison_s5 = false;
+        mush_poison_s5.setAlpha(1);
+    }
+    else if(etat_poison_s5 == true ){
+        compteur_mush_s5 --
+        mush_poison_s5.setAlpha(0);
+    }
+}
+
+function hit_player_s5(){
+    
+    if(etat_poison_s5 == false && invincible == false){
+        playerHp -= 1
+        textHp.setText(playerHp);
+        invincible = true;
+    }
+}
+
+
+
+function anim_mush_s5(){
+    if(anim_mush_02_s5 == true){
+        enemy_s5.anims.play('hide',true);
+        anim_mush_02_s5 = false;
+        enemy_s5_direction_right = true;
+        if(enemy_s5_direction_right == true){
+            enemy_s5.flipX = false;
+        }
+        
+    }
+}
+
+function lose_life(){
+    
+    if(invincible == false){
+        playerHp -= 1;
+        invincible = true;
+    }
+    
 }
 

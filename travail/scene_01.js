@@ -13,7 +13,7 @@ var tween_elevator_cage;
 var wall_climb = false;
 var elevator = false;
 
-var compteurBullet = 50;
+var compteurBullet = 160;
 var bulletOn = true;
 var groupeBullets;
 var bullet;
@@ -22,7 +22,7 @@ var textX;
 var textY;
 var textHp;
 
-var scoreCrystal = 18;
+var scoreCrystal = 0;
 var texteBanane;
 
 var fall_block;
@@ -82,8 +82,21 @@ var etat_zone_levier = false;
 
 var pressE;
 
+var tuto_deplacement;
+var tween_deplacement;
+
+var tuto_clim;
+var tween_climb;
+
+var tuto_tire;
+var tween_tire;
+
 var crystal_loot;
 var tween_crystal_loot;
+
+var loot = false;
+
+var particles;
 
 class scene_01 extends Phaser.Scene{
     constructor(){
@@ -114,6 +127,12 @@ class scene_01 extends Phaser.Scene{
         this.load.image('end','assets/end.png');
         this.load.image('pressE','assets/pressE.png');
         this.load.image('crystal_loot','assets/crystal_loot.png');
+        this.load.image('tuto_deplacement','assets/tuto_deplacement.png');
+        this.load.image('tuto_climb','assets/tuto_climb.png');
+        this.load.image('tuto_tire','assets/tuto_cristaux.png');
+        
+        
+
         
 
         this.load.image('centre','assets/HUD-assets/centre.png');
@@ -183,8 +202,54 @@ class scene_01 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
-        
+        particles = this.add.particles('particles_bullet')
+            particles.createEmitter({
+            //frame: 'particles_bullet',
+            x: 600, y: 450,
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 64 },
+            speed: 50,
+            quantity: 64,
+            scale: { start: 10, end: 0.2 },
+            frequency: 32,
+            on:false,
+            blendMode: 'ADD'
+        });
 
+
+
+        tuto_deplacement = this.add.sprite(180,800,'tuto_deplacement');
+
+        tween_deplacement = this.tweens.add({
+            targets: tuto_deplacement,
+            y:  770,
+            duration: 2000,
+            //paused: true,
+            yoyo : true,
+            repeat: -1,
+        }); 
+
+        tuto_clim = this.add.sprite(1200,1100,'tuto_climb');
+
+        tween_climb = this.tweens.add({
+            targets: tuto_clim,
+            y:  1070,
+            duration: 2000,
+            //paused: true,
+            yoyo : true,
+            repeat: -1,
+        }); 
+
+        tuto_tire = this.add.sprite(2760,650,'tuto_tire');
+
+        tween_tire = this.tweens.add({
+            targets: tuto_tire,
+            y:  620,
+            duration: 2000,
+            //paused: true,
+            yoyo : true,
+            repeat: -1,
+        });
 
 
         player = this.physics.add.sprite(100,925,'player').setScale(1).setSize(90,70);//start: 100,925
@@ -321,7 +386,8 @@ class scene_01 extends Phaser.Scene{
 
         pressE = this.add.sprite(3840,1110,'pressE').setAlpha(0);
 
-        crystal_loot = this.add.sprite(1433,320,'crystal_loot');
+        crystal_loot = this.physics.add.sprite(1433,320,'crystal_loot');
+        crystal_loot.body.setAllowGravity(false);
 
         tween_crystal_loot = this.tweens.add({
             targets: crystal_loot,
@@ -332,6 +398,7 @@ class scene_01 extends Phaser.Scene{
             repeat: -1,
         }); 
 
+        this.physics.add.overlap(player,crystal_loot, lootCrystal,null,this);
         this.physics.add.overlap(player, zone_enemy,agro_enemy,null,this);
         this.physics.add.overlap(player, enemy,lose_life,null,this);
         this.physics.add.collider(enemy,ground_02);
@@ -349,6 +416,8 @@ class scene_01 extends Phaser.Scene{
         this.physics.add.collider(ground_02,player, climbOff,null,this);
         this.physics.add.collider(fall_block,player);
         this.physics.add.collider(player,trap_s1, activTrap_s1,null,this);
+
+        
 
 
         this.cameras.main.setZoom(0.55);
@@ -437,43 +506,43 @@ class scene_01 extends Phaser.Scene{
 
         
 
-        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
+        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0).setAlpha(0);
         barre_energie_01.body.setAllowGravity(false);
         barre_energie_01.setScale(1);
 
-        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0);
+        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0).setAlpha(0);
         barre_energie_02.body.setAllowGravity(false);
         barre_energie_02.setScale(1);
 
-        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0);
+        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0).setAlpha(0);
         barre_energie_03.body.setAllowGravity(false);
         barre_energie_03.setScale(1);
 
-        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0);
+        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0).setAlpha(0);
         barre_energie_04.body.setAllowGravity(false);
         barre_energie_04.setScale(1);
 
-        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0);
+        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0).setAlpha(0);
         barre_energie_05.body.setAllowGravity(false);
         barre_energie_05.setScale(1);
 
-        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0);
+        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0).setAlpha(0);
         barre_energie_06.body.setAllowGravity(false);
         barre_energie_06.setScale(1);
 
-        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0);
+        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0).setAlpha(0);
         barre_energie_07.body.setAllowGravity(false);
         barre_energie_07.setScale(1);
 
-        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0);
+        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0).setAlpha(0);
         barre_energie_08.body.setAllowGravity(false);
         barre_energie_08.setScale(1);
 
-        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0);
+        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0).setAlpha(0);
         barre_energie_09.body.setAllowGravity(false);
         barre_energie_09.setScale(1);
 
-        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
+        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0).setAlpha(0);
         ligne_energie.body.setAllowGravity(false);
         ligne_energie.setScale(1);
 
@@ -488,6 +557,62 @@ class scene_01 extends Phaser.Scene{
 }  
 
     update(){
+
+       
+
+        if(playerHp == 5){
+            pdv_01.setAlpha(1);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            
+
+        }
+        else if(playerHp == 4){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+
+        }
+        else if(playerHp == 3){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_02.stop();
+
+        }
+        else if(playerHp == 2){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_03.stop();
+
+        }
+        else if(playerHp == 1){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(1);
+            tween_pdv_04.stop();
+        } 
+        else if(playerHp == 0){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(0.3);
+            tween_pdv_05.stop();
+        } 
+
 
         if (playerHp == 0){
             this.cameras.main.fadeIn(2000);
@@ -563,7 +688,7 @@ class scene_01 extends Phaser.Scene{
         if(bulletOn == false){ // relance du compteur des projectiles //
             compteurBullet-- ;
             if(compteurBullet == 0){
-                compteurBullet = 50;
+                compteurBullet = 160;
                 bulletOn = true ;
             }
         }
@@ -693,7 +818,7 @@ function tirer(player,pointer) {
         // Physique de la carte //
         bullet.setCollideWorldBounds(false);
         bullet.body.allowGravity = true;
-        bullet.setVelocity(1500 * coefDir, -90); // vitesse en x et en y
+        bullet.setVelocity(2000 * coefDir, -90); // vitesse en x et en y
         bulletOn = false;
         }
     }
@@ -712,65 +837,15 @@ function killEnemy(){
     if(enemyHp == 0){
         enemy.destroy(true,true);
         etat_enemy = false;
-        //zone_enemy.destroy(true,true);
-
+        particles.emitParticleAt(enemy.x, enemy.y);
     }
 }
-
-
-/*function shot_enemy(enemy) {
-    
-    if (bulletEnemyOn == true){
-        var coefDirEnemy;
-        if (enemy.direction == 'right') { // determine la direction du joueur //
-            coefDirEnemy = -1; 
-        } else { 
-            coefDirEnemy = 1
-        }
-        bulletEnemy = groupeBulletsEnemy.create(enemy.x + (1 * coefDirEnemy), enemy.y - 20, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
-        // Physique de la carte //*/
-        /*bulletEnemy.setCollideWorldBounds(false);
-        bulletEnemy.body.allowGravity = true;
-        bulletEnemy.setVelocity(600 * coefDirEnemy, -300); // vitesse en x et en y
-        bulletEnemyOn = false;    
-    }
-}*/
 
 function lose_life(){
     
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
-        if(playerHp == 5){
-            pdv_01.setAlpha(0.3);
-            tween_pdv_01.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 4){
-            pdv_02.setAlpha(0.3);
-            tween_pdv_02.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 3){
-            pdv_03.setAlpha(0.3);
-            tween_pdv_03.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 2){
-            pdv_04.setAlpha(0.3);
-            tween_pdv_04.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 1){
-            pdv_05.setAlpha(0.3);
-            tween_pdv_05.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        } 
     }
     
 }
@@ -779,31 +854,7 @@ function destroy_bullet(){
     bullet.destroy(true,true);
     emitter_particles_bullet.stopFollow(bullet);
 }
-/*function destroy_bullet_enemy(){
-    bulletEnemy.destroy(true,true);
-}*/
-
-
-
-
-    /*enemy_agro = true;
-    enemy.anims.play('walk',true);
-    if (bulletEnemyOn == true && etat_bullet_enemy == true){
-        var coefDirEnemy;
-        if (enemy.direction == 'right') { // determine la direction du joueur //
-            coefDirEnemy = -1; 
-        } else { 
-            coefDirEnemy = 1
-        }
-        bulletEnemy = groupeBulletsEnemy.create(enemy.x /*+ (1 * coefDirEnemy)*///, enemy.y /*- 20*/, 'banane').setScale(2); // permet de créer la carte à coté du joueur //
-        // Physique de la carte //
-       /* bulletEnemy.setCollideWorldBounds(false);
-        bulletEnemy.body.allowGravity = true;
-        bulletEnemy.setVelocity(600 * coefDirEnemy, -300); // vitesse en x et en y
-        bulletEnemyOn = false;       
-    }*/
-    
-    
+   
 function agro_enemy (){
     enemy_agro = true;
     if (enemy.x > player.x && etat_enemy == true){
@@ -830,7 +881,143 @@ function agro_enemy (){
 }
 
 function energy(){
-    if (scoreCrystal >=17){
+    if(loot == true){
+        if (scoreCrystal == 9){
+            barre_energie_01.setAlpha(1);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 8){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 7){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 6){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 5){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 4){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 3){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 2){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 1){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 0){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(0.3);
+        }
+    }
+}
+
+function activLevier(){
+    if(loot == true){
+        pressE.setAlpha(1);
+        if(keyE.isDown){
+            tween_elevator_ground.play();
+            tween_elevator_cage.play();
+        }
+    }
+}
+
+function activTrap_s1(){
+    player.x = 100;
+    player.y = 925;
+    this.cameras.main.fadeIn(1000);
+}
+
+function lootCrystal(){
+    loot = true;
+    crystal_loot.destroy(true,true);
+    scoreCrystal = 9;
+
+    if (scoreCrystal == 9){
+        ligne_energie.setAlpha(1);
         barre_energie_01.setAlpha(1);
         barre_energie_02.setAlpha(1);
         barre_energie_03.setAlpha(1);
@@ -841,119 +1028,6 @@ function energy(){
         barre_energie_08.setAlpha(1);
         barre_energie_09.setAlpha(1);
     }
-    else if(scoreCrystal >= 15){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(1);
-        barre_energie_03.setAlpha(1);
-        barre_energie_04.setAlpha(1);
-        barre_energie_05.setAlpha(1);
-        barre_energie_06.setAlpha(1);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >= 13){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(1);
-        barre_energie_04.setAlpha(1);
-        barre_energie_05.setAlpha(1);
-        barre_energie_06.setAlpha(1);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >= 11){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(1);
-        barre_energie_05.setAlpha(1);
-        barre_energie_06.setAlpha(1);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >= 9){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(1);
-        barre_energie_06.setAlpha(1);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >= 7){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(0.3);
-        barre_energie_06.setAlpha(1);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >=5){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(0.3);
-        barre_energie_06.setAlpha(0.3);
-        barre_energie_07.setAlpha(1);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >=3){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(0.3);
-        barre_energie_06.setAlpha(0.3);
-        barre_energie_07.setAlpha(0.3);
-        barre_energie_08.setAlpha(1);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal >=1){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(0.3);
-        barre_energie_06.setAlpha(0.3);
-        barre_energie_07.setAlpha(0.3);
-        barre_energie_08.setAlpha(0.3);
-        barre_energie_09.setAlpha(1);
-    }
-    else if(scoreCrystal == 0){
-        barre_energie_01.setAlpha(0.3);
-        barre_energie_02.setAlpha(0.3);
-        barre_energie_03.setAlpha(0.3);
-        barre_energie_04.setAlpha(0.3);
-        barre_energie_05.setAlpha(0.3);
-        barre_energie_06.setAlpha(0.3);
-        barre_energie_07.setAlpha(0.3);
-        barre_energie_08.setAlpha(0.3);
-        barre_energie_09.setAlpha(0.3);
-    }
-}
-
-function activLevier(){
-    pressE.setAlpha(1);
-    if(keyE.isDown){
-        tween_elevator_ground.play();
-        tween_elevator_cage.play();
-    }
-}
-
-function activTrap_s1(){
-    player.x = 100;
-    player.y = 925;
-    this.cameras.main.fadeIn(1000);
 }
 
 

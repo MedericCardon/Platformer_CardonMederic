@@ -45,6 +45,9 @@ var emitter_particles_player;
 var particles_bullet;
 var emitter_particles_bullet
 
+var zone_levier_s2;
+var pressE_s2;
+
 
 class scene_02 extends Phaser.Scene{
     constructor(){
@@ -120,7 +123,7 @@ class scene_02 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
-        player = this.physics.add.sprite(150,861,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(1414,477,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -148,6 +151,20 @@ class scene_02 extends Phaser.Scene{
             quantity: 2,
             scale: { start: 2, end: 0.5 },
             blendMode: 'ADD',
+        });
+
+        particles = this.add.particles('particles_bullet')
+            particles.createEmitter({
+            //frame: 'particles_bullet',
+            x: 600, y: 450,
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 64 },
+            speed: 50,
+            quantity: 64,
+            scale: { start: 10, end: 0.2 },
+            frequency: 32,
+            on:false,
+            blendMode: 'ADD'
         });
 
         target_enemy_01.x = 1466;
@@ -189,9 +206,10 @@ class scene_02 extends Phaser.Scene{
 
         
 
-        mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'mush_cloud').setScale(2);
+        mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'mush_cloud').setScale(1.5);
         mush_poison.body.setAllowGravity(false);
         mush_poison.setAlpha(0);
+
 
         this.anims.create({
             key: 'run',
@@ -292,13 +310,19 @@ class scene_02 extends Phaser.Scene{
         textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
         //textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
 
+        zone_levier_s2 = this.add.zone(1875,285 ).setSize(64, 64);
+        this.physics.world.enable(zone_levier_s2);
+        zone_levier_s2.body.setAllowGravity(false);
+        zone_levier_s2.body.moves = false;
 
+        pressE_s2 = this.add.sprite(1985,200,'pressE').setAlpha(0);
+
+        this.physics.add.overlap(player,zone_levier_s2,leverOn_s2,null,this);
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
         this.physics.add.overlap(player,mush_poison,hit_player,null,this);
         this.physics.add.overlap(player,zone_enemy_02,anim_mush,null,this);
         this.physics.add.collider(enemy_01,ground_02_s2);
         this.physics.add.collider(enemy_02,ground_02_s2);
-        this.physics.add.collider(lever_s2,player, leverOn_s2,null,this);
         this.physics.add.collider(ground_02_s2,player, climbOff,null,this);
         this.physics.add.collider(wall_s2,player, climbOn,null,this);
         this.physics.add.collider(block,player);
@@ -313,25 +337,316 @@ class scene_02 extends Phaser.Scene{
         this.physics.add.collider(groupeBullets,wall_s2, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,trap_s2, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_s2, destroy_bullet,null,this);
+        
 
         
 
         this.input.on('pointerup', function () {
             tirer(player);
-            //energy();
+            energy();
             emitter_particles_bullet.startFollow(bullet);
         }, this);
+
+        barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
+        barre_energie_01.body.setAllowGravity(false);
+        barre_energie_01.setScale(1);
+
+        barre_energie_02 = this.physics.add.sprite(-37,550,'barre_02').setScrollFactor(0);
+        barre_energie_02.body.setAllowGravity(false);
+        barre_energie_02.setScale(1);
+
+        barre_energie_03 = this.physics.add.sprite(-74,550,'barre_03').setScrollFactor(0);
+        barre_energie_03.body.setAllowGravity(false);
+        barre_energie_03.setScale(1);
+
+        barre_energie_04 = this.physics.add.sprite(-111,550,'barre_04').setScrollFactor(0);
+        barre_energie_04.body.setAllowGravity(false);
+        barre_energie_04.setScale(1);
+
+        barre_energie_05 = this.physics.add.sprite(-148,550,'barre_05').setScrollFactor(0);
+        barre_energie_05.body.setAllowGravity(false);
+        barre_energie_05.setScale(1);
+
+        barre_energie_06 = this.physics.add.sprite(-185,550,'barre_06').setScrollFactor(0);
+        barre_energie_06.body.setAllowGravity(false);
+        barre_energie_06.setScale(1);
+
+        barre_energie_07 = this.physics.add.sprite(-222,550,'barre_07').setScrollFactor(0);
+        barre_energie_07.body.setAllowGravity(false);
+        barre_energie_07.setScale(1);
+
+        barre_energie_08 = this.physics.add.sprite(-259,550,'barre_08').setScrollFactor(0);
+        barre_energie_08.body.setAllowGravity(false);
+        barre_energie_08.setScale(1);
+
+        barre_energie_09 = this.physics.add.sprite(-296,550,'barre_09').setScrollFactor(0);
+        barre_energie_09.body.setAllowGravity(false);
+        barre_energie_09.setScale(1);
+
+        ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
+        ligne_energie.body.setAllowGravity(false);
+        ligne_energie.setScale(1);
+
+        centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
+        centre_pdv.body.setAllowGravity(false);
+        centre_pdv.setScale(1.3);
+
+        pdv_01 = this.physics.add.sprite(-280,-97,'pdv1').setScrollFactor(0);
+        pdv_01.body.setAllowGravity(false);
+        pdv_01.setScale(1.3);
+
+        tween_pdv_01 = this.tweens.add({
+            targets: pdv_01,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_02 = this.physics.add.sprite(-245,-105,'pdv2').setScrollFactor(0);
+        pdv_02.body.setAllowGravity(false);
+        pdv_02.setScale(1.3);
+
+        tween_pdv_02 = this.tweens.add({
+            targets: pdv_02,
+            y: -110,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_03 = this.physics.add.sprite(-225,-80,'pdv3').setScrollFactor(0);
+        pdv_03.body.setAllowGravity(false);
+        pdv_03.setScale(1.3);
+
+        tween_pdv_03 = this.tweens.add({
+            targets: pdv_03,
+            x: -220,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_04 = this.physics.add.sprite(-245,-45,'pdv4').setScrollFactor(0);
+        pdv_04.body.setAllowGravity(false);
+        pdv_04.setScale(1.3);
+
+        tween_pdv_04 = this.tweens.add({
+            targets: pdv_04,
+            y: -40,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        pdv_05 = this.physics.add.sprite(-280,-55,'pdv5').setScrollFactor(0);
+        pdv_05.body.setAllowGravity(false);
+        pdv_05.setScale(1.3);
+
+        tween_pdv_05 = this.tweens.add({
+            targets: pdv_05,
+            x: -285,
+            duration: 1000,
+            yoyo : true,
+            repeat: -1
+        });
+
+        
 
 
     }
 
     update(){
 
+        if(zone_levier_s2.body.touching.none){
+            pressE_s2.setAlpha(0);
+        }
+
+        if(playerHp == 5){
+            pdv_01.setAlpha(1);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+        }
+        else if(playerHp == 4){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(1);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+
+        }
+        else if(playerHp == 3){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(1);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+
+        }
+        else if(playerHp == 2){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(1);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+
+        }
+        else if(playerHp == 1){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(1);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+        } 
+        else if(playerHp == 0){
+            pdv_01.setAlpha(0.3);
+            pdv_02.setAlpha(0.3);
+            pdv_03.setAlpha(0.3);
+            pdv_04.setAlpha(0.3);
+            pdv_05.setAlpha(0.3);
+            tween_pdv_01.stop();
+            tween_pdv_02.stop();
+            tween_pdv_03.stop();
+            tween_pdv_04.stop();
+            tween_pdv_05.stop();
+        } 
+
+        if (scoreCrystal == 9){
+            barre_energie_01.setAlpha(1);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 8){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(1);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 7){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(1);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 6){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(1);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 5){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(1);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 4){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(1);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 3){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(1);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 2){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(1);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 1){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(1);
+        }
+        else if(scoreCrystal == 0){
+            barre_energie_01.setAlpha(0.3);
+            barre_energie_02.setAlpha(0.3);
+            barre_energie_03.setAlpha(0.3);
+            barre_energie_04.setAlpha(0.3);
+            barre_energie_05.setAlpha(0.3);
+            barre_energie_06.setAlpha(0.3);
+            barre_energie_07.setAlpha(0.3);
+            barre_energie_08.setAlpha(0.3);
+            barre_energie_09.setAlpha(0.3);
+        }
+
         if(bulletOn == false){ // relance du compteur des projectiles //
             compteurBullet-- ;
             if(compteurBullet == 0){
-                compteurBullet = 50;
+                compteurBullet = 160;
                 bulletOn = true ;
+            }
+        }
+
+        if(invincible == true){ // relance du compteur d'invulné player //
+            compteur-- ;
+            if(compteur == 0){
+                compteur = 150;
+                invincible = false ;
             }
         }
 
@@ -430,7 +745,6 @@ class scene_02 extends Phaser.Scene{
             if(compteur_cam > 0 && etat_cam == true){
                 compteur_cam --;
                 cam.pan(2800, 700, 2000);
-                console.log(compteur_cam);
             }         
         }
         if(compteur_cam <= 0){
@@ -446,7 +760,6 @@ class scene_02 extends Phaser.Scene{
 
         else if(keyQ.isDown){
             if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
-                console.log(wall_climb);
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
@@ -535,6 +848,8 @@ function climbOff(){
 }
 
 function leverOn_s2(){
+    console.log('ok')
+    pressE_s2.setAlpha(1);
     if(keyE.isDown && camera_block == false && active_lever_02 == false){
         active_lever_02 = true;
         camera_block = true;
@@ -559,10 +874,10 @@ function poison(){
 
 function hit_player(){
     
-    if(etat_poison == false){
+    if(etat_poison == false && invincible == false){
         playerHp -= 1
-        console.log(playerHp);
         textHp.setText(playerHp);
+        invincible = true;
     }
 }
 
@@ -591,6 +906,7 @@ function killEnemy_01(){
     if(enemyHp_01 == 0){
         enemy_01.destroy(true,true);
         etat_enemy_01 = false;
+        particles.emitParticleAt(enemy_01.x, enemy_01.y);
 
     }
 }
@@ -620,44 +936,6 @@ function agro_enemy_01 (){
     }
 }
 
-function lose_life(){
-    
-    if(invincible == false){
-        playerHp -= 1;
-        invincible = true;
-        if(playerHp == 5){
-            pdv_01.setAlpha(0.3);
-            tween_pdv_01.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 4){
-            pdv_02.setAlpha(0.3);
-            tween_pdv_02.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 3){
-            pdv_03.setAlpha(0.3);
-            tween_pdv_03.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 2){
-            pdv_04.setAlpha(0.3);
-            tween_pdv_04.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        }
-        else if(playerHp == 1){
-            pdv_05.setAlpha(0.3);
-            tween_pdv_05.stop();
-            //bulletEnemy.destroy(true,true);
-            //textHp.setText(playerHp);
-        } 
-    }
-    
-}
 
 function tirer(player,pointer) {
     
@@ -690,4 +968,13 @@ function activeTrap(){
     player.x = 150;
     player.y = 861;
     this.cameras.main.fadeIn(2000);
+}
+
+function lose_life(){
+    
+    if(invincible == false){
+        playerHp -= 1;
+        invincible = true;
+    }
+    
 }
