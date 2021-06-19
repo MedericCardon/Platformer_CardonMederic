@@ -125,7 +125,7 @@ class scene_01 extends Phaser.Scene{
         this.load.image('branche_02','assets/branche_02.png');
         this.load.image('champ_01','assets/champ_01.png');
         this.load.image('end','assets/end.png');
-        this.load.image('pressE','assets/pressE.png');
+        this.load.image('pressE','assets/press_e.png');
         this.load.image('crystal_loot','assets/crystal_loot.png');
         this.load.image('tuto_deplacement','assets/tuto_deplacement.png');
         this.load.image('tuto_climb','assets/tuto_climb.png');

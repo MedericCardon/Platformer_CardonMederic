@@ -448,6 +448,10 @@ class scene_03 extends Phaser.Scene{
 
 
         this.input.on('pointerup', function () {
+            if(bulletOn == true && sound_shot == true){
+                var shot = this.sound.add('shot');
+                shot.play({volume: 0.2});
+            }
             tirer(player);
             energy();
             emitter_particles_bullet.startFollow(bullet);
@@ -875,6 +879,8 @@ class scene_03 extends Phaser.Scene{
             player.setVelocityY(-500);
             player.anims.play('jump',true);
             emitter_particles_player.startFollow(player);
+            var jump = this.sound.add('jump');
+            jump.play();
         }
         else if(keyQ.isDown){
             if(keyQ.isDown && space.isDown && etat_dash == true && etat_power_up_dash == true){

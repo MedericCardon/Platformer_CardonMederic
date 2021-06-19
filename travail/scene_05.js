@@ -423,6 +423,10 @@ class scene_05 extends Phaser.Scene{
 
 
         this.input.on('pointerup', function () {
+            if(bulletOn == true && sound_shot == true){
+                var shot = this.sound.add('shot');
+                shot.play({volume: 0.2});
+            }
             if(crystal_explo == false){
                 tirer(player);
                 energy();
@@ -875,6 +879,8 @@ class scene_05 extends Phaser.Scene{
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             emitter_particles_player.startFollow(player);
+            var jump = this.sound.add('jump');
+            jump.play();
             if(crystal_explo == false){
                 player.anims.play('jump',true);
             }

@@ -37,7 +37,7 @@ class menu extends Phaser.Scene{
         this.load.image('background_menu','assets/ecran_acceuil/background_ecran.png');
         this.load.image('bouton_01','assets/ecran_acceuil/bouton_01.png');
         this.load.image('bouton_02','assets/ecran_acceuil/bouton_02.png');
-        this.load.image('titre','assets/ecran_acceuil/Mako.png');
+        this.load.image('titre','assets/ecran_acceuil/mako.png');
         this.load.image('crystal_01','assets/ecran_acceuil/crystal_01.png');
         this.load.image('crystal_02','assets/ecran_acceuil/crystal_02.png');
         this.load.image('crystal_03','assets/ecran_acceuil/crystal_03.png');
