@@ -25,7 +25,6 @@ var compteur_mush = 0;
 var relance_poison = 120;
 var target = new Phaser.Math.Vector2();
 
-var textDash;
 
 var anim_mush_02 = true;
 
@@ -60,13 +59,11 @@ class scene_02 extends Phaser.Scene{
     preload(){
         this.load.image('tiles', 'assets/place_holder.png');
         this.load.tilemapTiledJSON('scene_02_placeholder', 'scene_02.json');
-        //this.load.image('player','assets/player.png');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
         this.load.spritesheet('enemy','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
         this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 316 });
         this.load.image('bulle','assets/bulle.png');
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 197, frameHeight: 197 });
-
         this.load.image('background_s2','assets/scene_02/background_s2.png');
         this.load.image('etoiles_s2','assets/scene_02/etoiles_s2.png');
         this.load.image('branche_01_s2','assets/scene_02/branche_01_s2.png');
@@ -90,11 +87,6 @@ class scene_02 extends Phaser.Scene{
         this.add.image(0,0,'foreground').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_02_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
-        
-        
-
-       
-
         
 
         groupeBullets = this.physics.add.group();
@@ -123,7 +115,7 @@ class scene_02 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
-        player = this.physics.add.sprite(1414,477,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;
+        player = this.physics.add.sprite(100,861,'player').setScale(1).setSize(90,70);//start : 100,861
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
@@ -136,7 +128,7 @@ class scene_02 extends Phaser.Scene{
         
         wall_s2.setCollisionByExclusion(-1, true);
 
-        block = this.physics.add.sprite(3130,860,'plateforme_s2').setSize(90,70)/*.setOffset(40,0)*/;
+        block = this.physics.add.sprite(3130,860,'plateforme_s2').setSize(90,70);
         block.body.setAllowGravity(false);
         block.setCollideWorldBounds(true);
         block.body.immovable = true;
@@ -155,7 +147,6 @@ class scene_02 extends Phaser.Scene{
 
         particles = this.add.particles('particles_bullet')
             particles.createEmitter({
-            //frame: 'particles_bullet',
             x: 600, y: 450,
             lifespan: { min: 500, max: 600 },
             angle: { start: 0, end: 360, steps: 64 },
@@ -172,7 +163,7 @@ class scene_02 extends Phaser.Scene{
 
         
 
-        enemy_01 = this.physics.add.sprite(target_enemy_01.x,1400,'enemy');/*.setSize(90,70);*/
+        enemy_01 = this.physics.add.sprite(target_enemy_01.x,1400,'enemy');
         enemy_01.body.setAllowGravity(true);
         enemy_01.setCollideWorldBounds(true);
         enemy_01.setScale(0.6);
@@ -186,7 +177,7 @@ class scene_02 extends Phaser.Scene{
         target.x = 1410;
         target.y = 932;
 
-        enemy_02 = this.physics.add.sprite(1410,800,'enemy_02');/*.setSize(90,70);*/
+        enemy_02 = this.physics.add.sprite(1410,800,'enemy_02');
         enemy_02.body.setAllowGravity(true);
         enemy_02.setCollideWorldBounds(true);
         enemy_02.setScale(0.6);
@@ -237,10 +228,6 @@ class scene_02 extends Phaser.Scene{
             repeat: -1
         });
 
-        
-
-        
-
         this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNumbers('enemy', { start: 0, end: 39 }),
@@ -260,11 +247,7 @@ class scene_02 extends Phaser.Scene{
             frames: this.anims.generateFrameNumbers('ennemi', { start: 55, end: 64 }),
             frameRate: 5,
             repeat: -1
-        });
-
-        
-
-        
+        });   
 
         this.anims.create({
             key: 'walk_mush_02',
@@ -288,8 +271,6 @@ class scene_02 extends Phaser.Scene{
         });
 
         
-        
-
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  3840  , 1600);
         this.physics.world.setBounds(0, 0, 3840 , 1600);
@@ -303,12 +284,6 @@ class scene_02 extends Phaser.Scene{
         keyQ = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
-        textX = this.add.text(-350,-150, player.x,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        texteBanane = this.add.text(-350,-90, scoreCrystal,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        //textDash = this.add.text(-350,-30, compteur_dash,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
 
         zone_levier_s2 = this.add.zone(1875,285 ).setSize(64, 64);
         this.physics.world.enable(zone_levier_s2);
@@ -339,13 +314,12 @@ class scene_02 extends Phaser.Scene{
         this.physics.add.collider(groupeBullets,lever_s2, destroy_bullet,null,this);
         
 
-        
-
         this.input.on('pointerup', function () {
             tirer(player);
             energy();
             emitter_particles_bullet.startFollow(bullet);
         }, this);
+
 
         barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
         barre_energie_01.body.setAllowGravity(false);
@@ -451,9 +425,6 @@ class scene_02 extends Phaser.Scene{
             repeat: -1
         });
 
-        
-
-
     }
 
     update(){
@@ -476,7 +447,6 @@ class scene_02 extends Phaser.Scene{
             pdv_04.setAlpha(1);
             pdv_05.setAlpha(1);
             tween_pdv_01.stop();
-
         }
         else if(playerHp == 3){
             pdv_01.setAlpha(0.3);
@@ -486,7 +456,6 @@ class scene_02 extends Phaser.Scene{
             pdv_05.setAlpha(1);
             tween_pdv_01.stop();
             tween_pdv_02.stop();
-
         }
         else if(playerHp == 2){
             pdv_01.setAlpha(0.3);
@@ -497,7 +466,6 @@ class scene_02 extends Phaser.Scene{
             tween_pdv_01.stop();
             tween_pdv_02.stop();
             tween_pdv_03.stop();
-
         }
         else if(playerHp == 1){
             pdv_01.setAlpha(0.3);
@@ -707,16 +675,10 @@ class scene_02 extends Phaser.Scene{
                 relance_poison = 120;
             }
         }
-
-
-        zone_enemy_01.body.debugBodyColor = zone_enemy_01.body.touching.none ? 0x00ffff : 0xffff00;
-        zone_enemy_02.body.debugBodyColor = zone_enemy_02.body.touching.none ? 0x00ffff : 0xffff00;
-
-        
+     
         if(zone_enemy_02.body.touching.none){
             etat_poison = false;
             enemy_02.anims.play('walk_mush_02',true);
-            //tween_enemy_02.play();
             mush_poison.setAlpha(0);
             anim_mush_02 = true;
             if(enemy_02_direction_right == true){
@@ -734,7 +696,6 @@ class scene_02 extends Phaser.Scene{
                 enemy_02_direction_left = false;
                 enemy_02_direction_right = true;
             }
-            //this.physics.moveToObject(enemy_02, target, 200);
         }
             if(compteur_cam == 0){
                 compteur_cam = 250;
@@ -756,6 +717,8 @@ class scene_02 extends Phaser.Scene{
             player.setVelocityY(-500);
             player.anims.play('jump',true);
             emitter_particles_player.startFollow(player);
+            jump = this.sound.add('jump');
+            jump.play();
         }
 
         else if(keyQ.isDown){
@@ -763,8 +726,6 @@ class scene_02 extends Phaser.Scene{
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
-                textX.setText(player.x);
-                textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
@@ -773,8 +734,6 @@ class scene_02 extends Phaser.Scene{
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
                 player.setBounce(0.1);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
@@ -798,16 +757,12 @@ class scene_02 extends Phaser.Scene{
                 player.setVelocityY(-250);
                 player.setVelocityX(350);
                 player.anims.play('climb',true);
-                textX.setText(player.x);
-                textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 emitter_particles_player.startFollow(player);
             }
             else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 player.anims.play('run', true);
@@ -829,13 +784,10 @@ class scene_02 extends Phaser.Scene{
         }
         else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
-            //textX.setText(player.x);
-            //textY.setText(player.y);
             player.setRotation(0);
             emitter_particles_player.stopFollow(player);
             player.anims.play('idle', true);
-        }
-        
+        }       
     }
 }
 
@@ -856,8 +808,6 @@ function leverOn_s2(){
     }
 }
 
-
-
 function poison(){
     this.physics.moveToObject(enemy_02, target, 200);
     etat_poison = true;
@@ -876,7 +826,6 @@ function hit_player(){
     
     if(etat_poison == false && invincible == false){
         playerHp -= 1
-        textHp.setText(playerHp);
         invincible = true;
     }
 }
@@ -892,8 +841,6 @@ function anim_mush(){
         
     }
 }
-
-
 
 function killEnemy_01(){
     bullet.destroy(true,true);
@@ -942,7 +889,6 @@ function tirer(player,pointer) {
     if (bulletOn == true){
         if(scoreCrystal >= 1){
             scoreCrystal -= 1
-            //texteBanane.setText(scoreBanane);
         var coefDir;
         if (player.direction == 'left') { // determine la direction du joueur //
             coefDir = -1; 
@@ -970,11 +916,9 @@ function activeTrap(){
     this.cameras.main.fadeIn(2000);
 }
 
-function lose_life(){
-    
+function lose_life(){   
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
-    }
-    
+    } 
 }

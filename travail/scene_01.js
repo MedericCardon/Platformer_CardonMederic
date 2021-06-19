@@ -18,12 +18,7 @@ var bulletOn = true;
 var groupeBullets;
 var bullet;
 
-var textX;
-var textY;
-var textHp;
-
 var scoreCrystal = 0;
-var texteBanane;
 
 var fall_block;
 var fall_condition = true;
@@ -97,6 +92,11 @@ var tween_crystal_loot;
 var loot = false;
 
 var particles;
+var particles_01;
+
+var sound_shot = false;
+
+
 
 class scene_01 extends Phaser.Scene{
     constructor(){
@@ -130,11 +130,6 @@ class scene_01 extends Phaser.Scene{
         this.load.image('tuto_deplacement','assets/tuto_deplacement.png');
         this.load.image('tuto_climb','assets/tuto_climb.png');
         this.load.image('tuto_tire','assets/tuto_cristaux.png');
-        
-        
-
-        
-
         this.load.image('centre','assets/HUD-assets/centre.png');
         this.load.image('pdv1','assets/HUD-assets/pdv_01.png');
         this.load.image('pdv2','assets/HUD-assets/pdv_02.png');
@@ -151,32 +146,37 @@ class scene_01 extends Phaser.Scene{
         this.load.image('barre_07','assets/HUD-assets/barre_07.png');
         this.load.image('barre_08','assets/HUD-assets/barre_08.png');
         this.load.image('barre_09','assets/HUD-assets/barre_09.png');
-  
 
-
+        this.load.audio('jump','assets/sound/jumpland.wav');
+        this.load.audio('shot','assets/sound/shot.mp3');
     }
 
     create(){
+
+        // ----- background ----- //
+
         this.add.image(0,0,'background').setOrigin(0);
         this.add.image(-300,-250,'etoiles').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-200,'paralax_03').setOrigin(0).setScrollFactor(0.25);
         this.add.image(-180,-50,'paralax_01').setOrigin(0).setScrollFactor(0.5);
         this.add.image(-180,400,'paralax_02').setOrigin(0).setScrollFactor(0.7);
-        //this.add.image(-150,-150,'paralax_02').setOrigin(0).setScrollFactor(0.7);
         this.add.image(850,400,'branche_01').setOrigin(0);
         this.add.image(2350,600,'branche_02').setOrigin(0);
         this.add.image(0,0,'champ_01').setOrigin(0);
 
+
+        // ----- map tiled ----- //
+
         const map = this.make.tilemap({key: 'scene_01_placeholder'});
         const tileset = map.addTilesetImage('place_holder'/*nom fichier tiled*/, 'tiles');
-        
         const elevator_cage = map.createLayer('elevator_cage',tileset,0,0);
-        
         elevator_cage.setCollisionByExclusion(-1, true);
         
+        // ----- projectile ----- //
 
         groupeBullets = this.physics.add.group();
-        //groupeBulletsEnemy = this.physics.add.group();
+
+        // ----- particules ----- //
 
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -204,7 +204,6 @@ class scene_01 extends Phaser.Scene{
 
         particles = this.add.particles('particles_bullet')
             particles.createEmitter({
-            //frame: 'particles_bullet',
             x: 600, y: 450,
             lifespan: { min: 500, max: 600 },
             angle: { start: 0, end: 360, steps: 64 },
@@ -216,7 +215,19 @@ class scene_01 extends Phaser.Scene{
             blendMode: 'ADD'
         });
 
+        particles_01 = this.add.particles('particles_bullet')
+            particles_01.createEmitter({
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 16 },
+            speed: 200,
+            quantity: 64,
+            scale: { start: 3, end: 0.2 },
+            frequency: 100,
+            on:false,
+            blendMode: 'ADD'
+        });
 
+        // ----- tuto ----- //
 
         tuto_deplacement = this.add.sprite(180,800,'tuto_deplacement');
 
@@ -224,10 +235,9 @@ class scene_01 extends Phaser.Scene{
             targets: tuto_deplacement,
             y:  770,
             duration: 2000,
-            //paused: true,
             yoyo : true,
             repeat: -1,
-        }); 
+        });     
 
         tuto_clim = this.add.sprite(1200,1100,'tuto_climb');
 
@@ -235,26 +245,29 @@ class scene_01 extends Phaser.Scene{
             targets: tuto_clim,
             y:  1070,
             duration: 2000,
-            //paused: true,
             yoyo : true,
             repeat: -1,
         }); 
 
         tuto_tire = this.add.sprite(2760,650,'tuto_tire');
-
         tween_tire = this.tweens.add({
             targets: tuto_tire,
             y:  620,
             duration: 2000,
-            //paused: true,
             yoyo : true,
             repeat: -1,
         });
 
+        // ----- player ----- //
 
         player = this.physics.add.sprite(100,925,'player').setScale(1).setSize(90,70);//start: 100,925
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+
+        // ----- particules changement zone ----- //
+
+        var particles_02 = this.add.particles('particles_player');
 
         particles_end = this.add.particles('particles_end');
         emitter_particles_end = particles_end.createEmitter({
@@ -270,18 +283,22 @@ class scene_01 extends Phaser.Scene{
 
         this.add.image(0,0,'end').setOrigin(0);
 
+        // ----- animations ----- //
+
         this.anims.create({
             key: 'run',
             frames: this.anims.generateFrameNumbers('player', { start: 0, end: 11 }),
             frameRate: 25,
             repeat: 0
         });
+
         this.anims.create({
             key: 'climb',
             frames: this.anims.generateFrameNumbers('player', { start: 12, end: 34 }),
             frameRate: 50,
             repeat: 0
         });
+
         this.anims.create({
             key: 'idle',
             frames: this.anims.generateFrameNumbers('player', { start: 35, end: 40 }),
@@ -295,6 +312,15 @@ class scene_01 extends Phaser.Scene{
             frameRate: 8,
             repeat: -1
         });
+
+        this.anims.create({
+            key: 'anim_boss',
+            frames: this.anims.generateFrameNumbers('boss', { start: 0, end: 38}),
+            frameRate: 15,
+            repeat: -1
+        });
+
+        // ----- enemy ----- //
 
         target_enemy.x = 2815;
         target_enemy.y = 1181;
@@ -328,22 +354,28 @@ class scene_01 extends Phaser.Scene{
 
 
 
-        zone_enemy = this.add.zone(3000, 1150).setSize(850, 100);
+        zone_enemy = this.add.zone(3000, 1150).setSize(850, 100); // zone de detection enemy //
         this.physics.world.enable(zone_enemy);
         zone_enemy.body.setAllowGravity(false);
         zone_enemy.body.moves = false;
 
-        
+        // ----- map tiled (ground + trap) ----- //
 
         const elevator_ground = map.createLayer('elevator_ground',tileset,0,0);
         const ground_01 = map.createLayer('ground_01', tileset, 0, 0);
         const ground_03 = map.createLayer('ground_03', tileset, 0, 0);
         const ground_02 = map.createLayer('ground_02', tileset, 0, 0);
+        const trap_s1 = map.createLayer('trap_s1', tileset, 0, 0);
+        const lever = map.createLayer('lever',tileset,0,0);
+        const wall = map.createLayer('wall', tileset, 0, 0);
 
-        const trap_s1 = map.createLayer('trap_s1', tileset, 0, 0); 
+
+        wall.setCollisionByExclusion(-1, true);
+        elevator_ground.setCollisionByExclusion(-1, true);
+        lever.setCollisionByExclusion(-1, true);
         trap_s1.setCollisionByExclusion(-1, true);
-
         ground_01.setCollisionByExclusion(-1, true);
+        ground_02.setCollisionByExclusion(-1, true);
         
         fall_block = this.physics.add.sprite(2600,800,'fall_block');
         fall_block.setOrigin(0);
@@ -352,14 +384,7 @@ class scene_01 extends Phaser.Scene{
         fall_block.setSize(240,64);
         fall_block.setOffset(50,40);
 
-
-        const lever = map.createLayer('lever',tileset,0,0);
-        const wall = map.createLayer('wall', tileset, 0, 0);
-
-        wall.setCollisionByExclusion(-1, true);
-        elevator_ground.setCollisionByExclusion(-1, true);
-        ground_02.setCollisionByExclusion(-1, true);
-        lever.setCollisionByExclusion(-1, true);
+        // ----- tween plateforme elevator ----- //
 
         tween_elevator_ground = this.tweens.add({
             targets: elevator_ground,
@@ -379,12 +404,16 @@ class scene_01 extends Phaser.Scene{
             repeat: 0
         });
 
+        // ----- levier d'activation plateforme ----- //
+
         zone_levier_01 = this.add.zone(3770, 1190).setSize(64, 64);
         this.physics.world.enable(zone_levier_01);
         zone_levier_01.body.setAllowGravity(false);
         zone_levier_01.body.moves = false;
 
         pressE = this.add.sprite(3840,1110,'pressE').setAlpha(0);
+
+        // ----- loot energy ----- //
 
         crystal_loot = this.physics.add.sprite(1433,320,'crystal_loot');
         crystal_loot.body.setAllowGravity(false);
@@ -393,17 +422,18 @@ class scene_01 extends Phaser.Scene{
             targets: crystal_loot,
             y:  280,
             duration: 3000,
-            //paused: true,
             yoyo : true,
             repeat: -1,
         }); 
 
+        // ----- overlap ----- //
+
         this.physics.add.overlap(player,crystal_loot, lootCrystal,null,this);
         this.physics.add.overlap(player, zone_enemy,agro_enemy,null,this);
-        this.physics.add.overlap(player, enemy,lose_life,null,this);
-        this.physics.add.collider(enemy,ground_02);
+        this.physics.add.overlap(player, enemy,lose_life,null,this);    
         this.physics.add.overlap(groupeBullets,enemy,killEnemy,null,this);
 
+        // ----- collider ----- //
 
         this.physics.add.collider(groupeBullets,ground_02, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall, destroy_bullet,null,this);
@@ -416,16 +446,18 @@ class scene_01 extends Phaser.Scene{
         this.physics.add.collider(ground_02,player, climbOff,null,this);
         this.physics.add.collider(fall_block,player);
         this.physics.add.collider(player,trap_s1, activTrap_s1,null,this);
+        this.physics.add.collider(enemy,ground_02);
 
-        
-
+        // ----- camera ----- //
 
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  4032  , 1280 );
         this.physics.world.setBounds(0, 0, 4032 , 1280);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(1000);
-        
+
+        // ----- touches clavier ------ //
+
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
@@ -434,11 +466,7 @@ class scene_01 extends Phaser.Scene{
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
-
-        //textX = this.add.text(-350,-150, player.x,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        //textY = this.add.text(-350,-120, player.y,{font: '25px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        //texteBanane = this.add.text(-350,-90, scoreBanane,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
-        //textHp = this.add.text(-350,-60, playerHp,{font: '20px Georgia', fill: '#f0acdc' }).setScrollFactor(0);
+        // ----- points de vie ----- //
 
         centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
         centre_pdv.body.setAllowGravity(false);
@@ -504,7 +532,7 @@ class scene_01 extends Phaser.Scene{
             repeat: -1
         });
 
-        
+        // ----- barre d'energie ----- //
 
         barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0).setAlpha(0);
         barre_energie_01.body.setAllowGravity(false);
@@ -546,9 +574,13 @@ class scene_01 extends Phaser.Scene{
         ligne_energie.body.setAllowGravity(false);
         ligne_energie.setScale(1);
 
-       
+    // ----- tire avec souris ----- //   
 
     this.input.on('pointerup', function () {
+        if(bulletOn == true && sound_shot == true){
+            var shot = this.sound.add('shot');
+            shot.play({volume: 0.2});
+        }
         tirer(player);
         energy();
         emitter_particles_bullet.startFollow(bullet);
@@ -558,16 +590,14 @@ class scene_01 extends Phaser.Scene{
 
     update(){
 
-       
+        // ----- gain/perte pdv ----- //
 
         if(playerHp == 5){
             pdv_01.setAlpha(1);
             pdv_02.setAlpha(1);
             pdv_03.setAlpha(1);
             pdv_04.setAlpha(1);
-            pdv_05.setAlpha(1);
-            
-
+            pdv_05.setAlpha(1); 
         }
         else if(playerHp == 4){
             pdv_01.setAlpha(0.3);
@@ -576,7 +606,6 @@ class scene_01 extends Phaser.Scene{
             pdv_04.setAlpha(1);
             pdv_05.setAlpha(1);
             tween_pdv_01.stop();
-
         }
         else if(playerHp == 3){
             pdv_01.setAlpha(0.3);
@@ -585,7 +614,6 @@ class scene_01 extends Phaser.Scene{
             pdv_04.setAlpha(1);
             pdv_05.setAlpha(1);
             tween_pdv_02.stop();
-
         }
         else if(playerHp == 2){
             pdv_01.setAlpha(0.3);
@@ -594,7 +622,6 @@ class scene_01 extends Phaser.Scene{
             pdv_04.setAlpha(1);
             pdv_05.setAlpha(1);
             tween_pdv_03.stop();
-
         }
         else if(playerHp == 1){
             pdv_01.setAlpha(0.3);
@@ -613,11 +640,10 @@ class scene_01 extends Phaser.Scene{
             tween_pdv_05.stop();
         } 
 
-
         if (playerHp == 0){
             this.cameras.main.fadeIn(2000);
             player.x = 100;
-            player.y = 800;
+            player.y = 925;
             playerHp = 5;
             pdv_01.setAlpha(1);
             tween_pdv_01.play();
@@ -629,8 +655,9 @@ class scene_01 extends Phaser.Scene{
             tween_pdv_04.play();
             pdv_05.setAlpha(1);
             tween_pdv_05.play();
-            //textHp.setText(playerHp);
         }
+
+        // ----- relance des compteurs ----- //
 
         if(invincible == true){ // relance du compteur d'invulné player //
             compteur-- ;
@@ -640,7 +667,7 @@ class scene_01 extends Phaser.Scene{
             }
         }
 
-        if(invincibleEnemy == true){ // relance du compteur d'invulné player //
+        if(invincibleEnemy == true){ // relance du compteur d'invulné enemy //
             compteurEnemy-- ;
             if(compteurEnemy == 0){
                 enemy.setTint(0xffffff);
@@ -649,11 +676,21 @@ class scene_01 extends Phaser.Scene{
             }
         }
 
+        if(bulletOn == false){ // relance du compteur des projectiles //
+            compteurBullet-- ;
+            if(compteurBullet == 0){
+                compteurBullet = 160;
+                bulletOn = true ;
+            }
+        }
+
+        // ----- changement de scene ----- //
+
         if(player.x > 3980){
             this.scene.start("scene_02");
         }
 
-        //zone_enemy.body.debugBodyColor = zone_enemy.body.touching.none ? 0x00ffff : 0xffff00;
+        // ----- comportement enemy ----- //
 
         if(zone_enemy.body.touching.none && etat_enemy == true){
             enemy_agro = false;
@@ -681,50 +718,34 @@ class scene_01 extends Phaser.Scene{
             }
         }
 
+        // ----- tuto levier ----- //
+
         if(zone_levier_01.body.touching.none){
             pressE.setAlpha(0);
         }
 
-        if(bulletOn == false){ // relance du compteur des projectiles //
-            compteurBullet-- ;
-            if(compteurBullet == 0){
-                compteurBullet = 160;
-                bulletOn = true ;
-            }
-        }
-
-        /*if(bulletEnemyOn == false){ // relance du compteur des projectiles //
-            compteurBulletEnemy -- ;
-            if(compteurBulletEnemy == 0){
-                compteurBulletEnemy  = 150;
-                bulletEnemyOn = true ;
-            }
-        }*/
+        // ----- controle clavier ----- //
         
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             player.anims.play('jump',true);
             emitter_particles_player.startFollow(player);
+            var jump = this.sound.add('jump');
+            jump.play();
         }
-        
         else if(keyQ.isDown){
             if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
             }
-            
             else if (keyQ.isDown && player.body.blocked.down){
                 player.anims.play('run', true);
                 player.setVelocityX(-350);
                 player.setBounce(0.1);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'left';
                 player.flipX = true;
                 emitter_particles_player.startFollow(player);
@@ -747,17 +768,12 @@ class scene_01 extends Phaser.Scene{
                 player.setVelocityY(-250);
                 player.setVelocityX(350);
                 player.anims.play('climb',true);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 emitter_particles_player.startFollow(player);
             }
-            
             else if (keyD.isDown && player.body.blocked.down) {
                 player.setVelocityX(350);
-                //textX.setText(player.x);
-                //textY.setText(player.y);
                 player.direction = 'right';
                 player.flipX = false;
                 player.anims.play('run', true);
@@ -779,35 +795,31 @@ class scene_01 extends Phaser.Scene{
         }
         else if (keyD.isUp && keyQ.isUp && keyZ.isUp && space.isUp){
             player.setVelocityX(0);
-            //textX.setText(player.x);
-            //textY.setText(player.y);
             player.setRotation(0);
             emitter_particles_player.stopFollow(player);
             player.anims.play('idle', true);
         }
-        
-        
-        
-        
-
     }
 }
 
-function climbOn(){
+
+// ----- fonctions ----- //
+
+
+function climbOn(){ // active la montée aux murs //
     wall_climb = true
 }
 
-function climbOff(){
+function climbOff(){ // desactive la montée aux murs //
     wall_climb = false
 }
 
 
-function tirer(player,pointer) {
+function tirer(player,pointer) { // lancer un projectile depuis une position donnée //
     
     if (bulletOn == true){
         if(scoreCrystal >= 1){
             scoreCrystal -= 1
-            //texteBanane.setText(scoreBanane);
         var coefDir;
         if (player.direction == 'left') { // determine la direction du joueur //
             coefDir = -1; 
@@ -824,9 +836,7 @@ function tirer(player,pointer) {
     }
 }
 
-
-
-function killEnemy(){
+function killEnemy(){ 
     bullet.destroy(true,true);
     emitter_particles_bullet.stopFollow(bullet);
     if(invincibleEnemy == false){
@@ -842,7 +852,6 @@ function killEnemy(){
 }
 
 function lose_life(){
-    
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
@@ -855,7 +864,7 @@ function destroy_bullet(){
     emitter_particles_bullet.stopFollow(bullet);
 }
    
-function agro_enemy (){
+function agro_enemy (){ // comportement enemy lors de l'agro //
     enemy_agro = true;
     if (enemy.x > player.x && etat_enemy == true){
         enemy.direction = 'right';
@@ -1012,9 +1021,11 @@ function activTrap_s1(){
 }
 
 function lootCrystal(){
+    sound_shot = true;
     loot = true;
     crystal_loot.destroy(true,true);
     scoreCrystal = 9;
+    particles_01.emitParticleAt(crystal_loot.x, crystal_loot.y);
 
     if (scoreCrystal == 9){
         ligne_energie.setAlpha(1);

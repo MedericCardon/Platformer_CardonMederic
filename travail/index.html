@@ -2,8 +2,8 @@
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
-    <title>xxx</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <title>Mako</title>
+    <script src="phaser.js"></script>
     <script src="menu.js"></script>
     <script src="scene_01.js"></script>
     <script src="scene_02.js"></script>
@@ -12,12 +12,13 @@
     <script src="scene_05.js"></script>
     <style type="text/css">
         body {
-            margin-top:120px;
-            margin-right:100px;
-            margin-bottom:129px;
+            margin-top:132px;
+            margin-right:293px;
+            margin-bottom:132px;
             margin-left:320px;
-
-            background: linear-gradient(#0d4155, #0a1e31);
+            border: 5px ridge #370B53;
+            border-radius: 10px;
+            background: linear-gradient(#080c29, #250738);
         }
     </style>
 </head>
@@ -36,18 +37,20 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
+            tileBias: 64,
             gravity: {y: 600},
-            debug: true
+            debug: false
         }
     },
 
     scene: [
         menu,
+        scene_03,
+        scene_04,
         scene_05,
         scene_01,
         scene_02,
-        scene_03,
-        scene_04,
+        
         
         
     ]
@@ -56,6 +59,8 @@ var config = {
 var game = new Phaser.Game(config);
 
 </script>
+
+
 
 </body>
 </html>

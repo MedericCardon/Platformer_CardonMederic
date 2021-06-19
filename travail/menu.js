@@ -49,9 +49,17 @@ class menu extends Phaser.Scene{
         this.load.image('crystal_09','assets/ecran_acceuil/crystal_09.png');
         this.load.image('crystal_10','assets/ecran_acceuil/crystal_10.png');
         this.load.image('crystal_centre','assets/ecran_acceuil/crystal_centre.png');
+
+        this.load.audio('sound','assets/sound/sound_01.wav');
+        this.load.audio('switch_button','assets/sound/vintage_radio_button_006.wav');
     }
 
     create(){
+
+        var music = this.sound.add('sound');
+        music.loop = true;
+        music.play();
+
         this.add.image(0,0,'background_menu').setOrigin(0);
 
         crystal_centre = this.add.sprite(335,3,'crystal_centre').setOrigin(0);
@@ -210,6 +218,8 @@ class menu extends Phaser.Scene{
 
         bouton_02.on('pointerup', function () {
             this.scene.start("scene_01");
+            var button = this.sound.add('switch_button');
+            button.play();
         }, this);
 
         
