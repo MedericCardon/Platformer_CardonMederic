@@ -151,6 +151,18 @@ class scene_04 extends Phaser.Scene{
             blendMode: 'ADD'
         });
 
+        particles_01 = this.add.particles('particles_bullet')
+            particles_01.createEmitter({
+            lifespan: { min: 500, max: 600 },
+            angle: { start: 0, end: 360, steps: 16 },
+            speed: 200,
+            quantity: 64,
+            scale: { start: 3, end: 0.2 },
+            frequency: 100,
+            on:false,
+            blendMode: 'ADD'
+        });
+
         
 
         this.add.image(0,0,'end_01_s4').setOrigin(0);
@@ -486,18 +498,37 @@ class scene_04 extends Phaser.Scene{
             tween_pdv_03.stop();
             tween_pdv_04.stop();
         } 
-        else if(playerHp == 0){
-            pdv_01.setAlpha(0.3);
-            pdv_02.setAlpha(0.3);
-            pdv_03.setAlpha(0.3);
-            pdv_04.setAlpha(0.3);
-            pdv_05.setAlpha(0.3);
-            tween_pdv_01.stop();
-            tween_pdv_02.stop();
-            tween_pdv_03.stop();
-            tween_pdv_04.stop();
-            tween_pdv_05.stop();
-        } 
+
+        if (playerHp == 0){
+            this.cameras.main.fadeIn(2000);
+            this.cameras.main.shake(100);
+            if(end2 == true){
+                player.x = 74;
+                player.y = 2077;
+            }
+        
+            if (end1 == true){
+                player.x = 760;
+                player.y = 100;
+            }
+        
+            if(end_vers_s4 == true){
+                player.x = 760;
+                player.y = 100;
+            }
+            playerHp = 5;
+            pdv_01.setAlpha(1);
+            tween_pdv_01.play();
+            pdv_02.setAlpha(1);
+            tween_pdv_02.play();
+            pdv_03.setAlpha(1);
+            tween_pdv_03.play();
+            pdv_04.setAlpha(1);
+            tween_pdv_04.play();
+            pdv_05.setAlpha(1);
+            tween_pdv_05.play();
+            scoreCrystal = 9;
+        }
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -644,6 +675,10 @@ class scene_04 extends Phaser.Scene{
         if(player.y == 35 && player.x >=685 && player.x <= 787){
             this.scene.start("scene_05");
             end_s4 = true;
+        }
+
+        if(player.x == 3539 && player.y == 2077){
+            this.scene.start("scene_06");
         }
 
         if (shift_block_01_s4.x <= 1217){
@@ -838,6 +873,7 @@ function climbOff(){
 
 function activeTrap_s4(){
     this.cameras.main.fadeIn(2000);
+    this.cameras.main.shake(100);
     if(end2 == true){
         player.x = 74;
         player.y = 2077;
@@ -932,11 +968,13 @@ function lootCrystal_s4(){
     loot_s4 = false;
     crystal_loot_s4.destroy(true,true);
     scoreCrystal = 9;
+    particles_01.emitParticleAt(crystal_loot_s4.x, crystal_loot_s4.y);
 }
 
 function lose_life(){
     
     if(invincible == false){
+        this.cameras.main.shake(100);
         playerHp -= 1;
         invincible = true;
     }   

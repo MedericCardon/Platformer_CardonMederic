@@ -95,6 +95,7 @@ var particles;
 var particles_01;
 
 var sound_shot = false;
+var rejouer = false;
 
 
 
@@ -313,12 +314,6 @@ class scene_01 extends Phaser.Scene{
             repeat: -1
         });
 
-        this.anims.create({
-            key: 'anim_boss',
-            frames: this.anims.generateFrameNumbers('boss', { start: 0, end: 38}),
-            frameRate: 15,
-            repeat: -1
-        });
 
         // ----- enemy ----- //
 
@@ -631,16 +626,9 @@ class scene_01 extends Phaser.Scene{
             pdv_05.setAlpha(1);
             tween_pdv_04.stop();
         } 
-        else if(playerHp == 0){
-            pdv_01.setAlpha(0.3);
-            pdv_02.setAlpha(0.3);
-            pdv_03.setAlpha(0.3);
-            pdv_04.setAlpha(0.3);
-            pdv_05.setAlpha(0.3);
-            tween_pdv_05.stop();
-        } 
 
         if (playerHp == 0){
+            this.cameras.main.shake(100);
             this.cameras.main.fadeIn(2000);
             player.x = 100;
             player.y = 925;
@@ -655,6 +643,26 @@ class scene_01 extends Phaser.Scene{
             tween_pdv_04.play();
             pdv_05.setAlpha(1);
             tween_pdv_05.play();
+            scoreCrystal = 9;
+        }
+
+        if (rejouer == true){
+            this.cameras.main.shake(100);
+            this.cameras.main.fadeIn(2000);
+            player.x = 100;
+            player.y = 925;
+            playerHp = 5;
+            pdv_01.setAlpha(1);
+            tween_pdv_01.play();
+            pdv_02.setAlpha(1);
+            tween_pdv_02.play();
+            pdv_03.setAlpha(1);
+            tween_pdv_03.play();
+            pdv_04.setAlpha(1);
+            tween_pdv_04.play();
+            pdv_05.setAlpha(1);
+            tween_pdv_05.play();
+            scoreCrystal = 9;
         }
 
         // ----- relance des compteurs ----- //
@@ -855,6 +863,7 @@ function lose_life(){
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
+        this.cameras.main.shake(100);
     }
     
 }
@@ -1017,7 +1026,9 @@ function activLevier(){
 function activTrap_s1(){
     player.x = 100;
     player.y = 925;
+    this.cameras.main.shake(300);
     this.cameras.main.fadeIn(1000);
+    
 }
 
 function lootCrystal(){

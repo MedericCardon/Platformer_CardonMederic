@@ -62,7 +62,6 @@ class scene_02 extends Phaser.Scene{
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
         this.load.spritesheet('enemy','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
         this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 316 });
-        this.load.image('bulle','assets/bulle.png');
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 197, frameHeight: 197 });
         this.load.image('background_s2','assets/scene_02/background_s2.png');
         this.load.image('etoiles_s2','assets/scene_02/etoiles_s2.png');
@@ -169,7 +168,7 @@ class scene_02 extends Phaser.Scene{
         enemy_01.setScale(0.6);
         enemy_01.setSize(140,242);
 
-        zone_enemy_01 = this.add.zone(1150, 1385).setSize(800, 200);
+        zone_enemy_01 = this.add.zone(1150, 1385).setSize(800, 100);
         this.physics.world.enable(zone_enemy_01);
         zone_enemy_01.body.setAllowGravity(false);
         zone_enemy_01.body.moves = false;
@@ -483,7 +482,7 @@ class scene_02 extends Phaser.Scene{
             tween_pdv_03.stop();
             tween_pdv_04.stop();
         } 
-        else if(playerHp == 0){
+        /*else if(playerHp == 0){
             pdv_01.setAlpha(0.3);
             pdv_02.setAlpha(0.3);
             pdv_03.setAlpha(0.3);
@@ -494,7 +493,25 @@ class scene_02 extends Phaser.Scene{
             tween_pdv_03.stop();
             tween_pdv_04.stop();
             tween_pdv_05.stop();
-        } 
+        } */
+        if (playerHp == 0){
+            this.cameras.main.shake(100);
+            this.cameras.main.fadeIn(2000);
+            player.x = 100;
+            player.y = 861;
+            playerHp = 5;
+            pdv_01.setAlpha(1);
+            tween_pdv_01.play();
+            pdv_02.setAlpha(1);
+            tween_pdv_02.play();
+            pdv_03.setAlpha(1);
+            tween_pdv_03.play();
+            pdv_04.setAlpha(1);
+            tween_pdv_04.play();
+            pdv_05.setAlpha(1);
+            tween_pdv_05.play();
+            scoreCrystal = 9;
+        }
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -832,6 +849,7 @@ function hit_player(){
     if(etat_poison == false && invincible == false){
         playerHp -= 1
         invincible = true;
+        this.cameras.main.shake(100);
     }
 }
 
@@ -919,11 +937,13 @@ function activeTrap(){
     player.x = 150;
     player.y = 861;
     this.cameras.main.fadeIn(2000);
+    this.cameras.main.shake(100);
 }
 
 function lose_life(){   
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
+        this.cameras.main.shake(100);
     } 
 }

@@ -47,12 +47,10 @@ var emitter_particles_player;
 var crystal_chute_01;
 var crystal_chute_02;
 var crystal_chute_03;
-var crystal_chute_04;
 
 var tween_crystal_chute_01;
 var tween_crystal_chute_02;
 var tween_crystal_chute_03;
-var tween_crystal_chute_04;
 
 var enemy_03_right = true;
 var enemy_03_left = false;
@@ -192,7 +190,7 @@ class scene_03 extends Phaser.Scene{
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
-        particles_crystal_dash = this.add.particles('particles_bullet');
+        particles_crystal_dash = this.add.particles('particles_player');
         emitter_crystal_dash = particles_crystal_dash.createEmitter({
             angle: { start: 0, end: 360, steps: 16 },
             lifespan: 500,
@@ -405,6 +403,10 @@ class scene_03 extends Phaser.Scene{
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 
+        this.physics.add.overlap(crystal_chute_01,player,lose_life,null,this);
+        this.physics.add.overlap(crystal_chute_02,player,lose_life,null,this);
+        this.physics.add.overlap(crystal_chute_03,player,lose_life,null,this);
+
         this.physics.add.collider(groupeBullets,ground_02_s3, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall_s3, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_3, destroy_bullet,null,this);
@@ -612,18 +614,25 @@ class scene_03 extends Phaser.Scene{
             tween_pdv_03.stop();
             tween_pdv_04.stop();
         } 
-        else if(playerHp == 0){
-            pdv_01.setAlpha(0.3);
-            pdv_02.setAlpha(0.3);
-            pdv_03.setAlpha(0.3);
-            pdv_04.setAlpha(0.3);
-            pdv_05.setAlpha(0.3);
-            tween_pdv_01.stop();
-            tween_pdv_02.stop();
-            tween_pdv_03.stop();
-            tween_pdv_04.stop();
-            tween_pdv_05.stop();
-        } 
+
+        if (playerHp == 0){
+            this.cameras.main.fadeIn(2000);
+            this.cameras.main.shake(100);
+            player.x = 109;
+            player.y = 797;
+            playerHp = 5;
+            pdv_01.setAlpha(1);
+            tween_pdv_01.play();
+            pdv_02.setAlpha(1);
+            tween_pdv_02.play();
+            pdv_03.setAlpha(1);
+            tween_pdv_03.play();
+            pdv_04.setAlpha(1);
+            tween_pdv_04.play();
+            pdv_05.setAlpha(1);
+            tween_pdv_05.play();
+            scoreCrystal = 9;
+        }
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -812,7 +821,7 @@ class scene_03 extends Phaser.Scene{
         if(plateforme_02.y < 901){
             plateforme_02.setVelocityY(100);
         }
-        else if(plateforme_02.y > 1280 ){
+        else if(plateforme_02.y > 1180 ){
             plateforme_02.setVelocityY(-100);
         }
 
@@ -985,8 +994,7 @@ function disable_fallBlock_s2(){
 function leverOn3_s3(){
     pressE_02.setVisible(true);
     if(keyE.isDown && active_lever_3 == false){
-        active_lever_3 = true;
-        
+        active_lever_3 = true;  
     }
 }
 
@@ -999,6 +1007,7 @@ function leverOn4_s3(){
 
 function trap_s2(){
     this.cameras.main.fadeIn(2000);
+    this.cameras.main.shake(100);
     player.y = 797;
     player.x = 109;
     
@@ -1068,8 +1077,6 @@ function tutoDash(){
 
 }
 
-
-
 function tirer(player,pointer) {
     
     if (bulletOn == true){
@@ -1119,6 +1126,7 @@ function lose_life(){
     if(invincible == false){
         playerHp -= 1;
         invincible = true;
+        this.cameras.main.shake(100);
     }
     
 }
