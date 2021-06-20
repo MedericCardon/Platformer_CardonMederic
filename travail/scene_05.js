@@ -61,7 +61,7 @@ var bulletEnemy_03_s5;
 var compteurBulletEnemy_03_s5 = 150;
 var bulletEnemyOn_03_s5 = true;
 
-var pressE_s5;
+var press_e_s5;
 var zone_levier_s5;
 
 var crystal_loot_s5;
@@ -397,7 +397,7 @@ class scene_05 extends Phaser.Scene{
             repeat: 0
         });
 
-        pressE_s5= this.add.sprite(100,1950,'pressE').setVisible(false);
+        press_e_s5= this.add.sprite(100,1950,'press_e').setVisible(false);
 
         zone_levier_s5 = this.add.zone(237, 2013).setSize(64, 64);
         this.physics.world.enable(zone_levier_s5);
@@ -626,7 +626,7 @@ class scene_05 extends Phaser.Scene{
     update(){
 
         if(zone_levier_s5.body.touching.none){
-            pressE_s5.setVisible(false);
+            press_e_s5.setVisible(false);
         }
 
 
@@ -1192,7 +1192,7 @@ function dashOn(){
 
 
 function activeElevator_s5(){
-    pressE_s5.setVisible(true);
+    press_e_s5.setVisible(true);
     if(keyE.isDown){
         tween_elevator_s5.play();
         tween_ground_elevator_s5.play();

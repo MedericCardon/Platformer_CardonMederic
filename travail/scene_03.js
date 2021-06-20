@@ -68,10 +68,10 @@ var tuto_dash;
 var tween_tuto_dash;
 var zone_tuto_dash;
 
-var pressE_02;
+var press_e_02;
 var zone_levier_02;
 
-var pressE_03;
+var press_e_03;
 var zone_levier_03;
 
 var particles_bullet;
@@ -113,7 +113,7 @@ class scene_03 extends Phaser.Scene{
         this.load.image('banane','assets/banane_01.png');
         this.load.spritesheet('dash_power_up','assets/spriteSheet_crystal_dash.png',{ frameWidth: 150, frameHeight: 150 });
         this.load.image('particles_bullet','assets/particles_bullet.png');
-        this.load.image('pressE','assets/pressE.png');
+        this.load.image('press_e','assets/press_e.png');
     }
 
     create(){
@@ -367,14 +367,14 @@ class scene_03 extends Phaser.Scene{
         ground_03_s3.setCollisionByExclusion(-1, true);
         trap_s3.setCollisionByExclusion(-1, true);
 
-        pressE_02 = this.add.sprite(1410,700,'pressE').setVisible(false);
+        press_e_02 = this.add.sprite(1410,700,'press_e').setVisible(false);
 
         zone_levier_02 = this.add.zone(1517, 797).setSize(64, 64);
         this.physics.world.enable(zone_levier_02);
         zone_levier_02.body.setAllowGravity(false);
         zone_levier_02.body.moves = false;
 
-        pressE_03 = this.add.sprite(3390,600,'pressE').setVisible(false);
+        press_e_03 = this.add.sprite(3390,600,'press_e').setVisible(false);
 
         zone_levier_03 = this.add.zone(3310, 690).setSize(64, 64);
         this.physics.world.enable(zone_levier_03);
@@ -775,11 +775,11 @@ class scene_03 extends Phaser.Scene{
         }
 
         if(zone_levier_02.body.touching.none){
-            pressE_02.setVisible(false);
+            press_e_02.setVisible(false);
         }
 
         if(zone_levier_03.body.touching.none){
-            pressE_03.setVisible(false);
+            press_e_03.setVisible(false);
         }
         
         if(anims_power_up_dash == true){
@@ -992,14 +992,14 @@ function disable_fallBlock_s2(){
 }
 
 function leverOn3_s3(){
-    pressE_02.setVisible(true);
+    press_e_02.setVisible(true);
     if(keyE.isDown && active_lever_3 == false){
         active_lever_3 = true;  
     }
 }
 
 function leverOn4_s3(){
-    pressE_03.setVisible(true);
+    press_e_03.setVisible(true);
     if(keyE.isDown && active_lever_4 == false){
         active_lever_4 = true;
     }

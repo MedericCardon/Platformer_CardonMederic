@@ -75,7 +75,7 @@ var spawn_enemy = false;
 var zone_levier_01;
 var etat_zone_levier = false;
 
-var pressE;
+var press_e;
 
 var tuto_deplacement;
 var tween_deplacement;
@@ -126,7 +126,7 @@ class scene_01 extends Phaser.Scene{
         this.load.image('branche_02','assets/branche_02.png');
         this.load.image('champ_01','assets/champ_01.png');
         this.load.image('end','assets/end.png');
-        this.load.image('pressE','assets/press_e.png');
+        this.load.image('press_e','assets/press_e.png');
         this.load.image('crystal_loot','assets/crystal_loot.png');
         this.load.image('tuto_deplacement','assets/tuto_deplacement.png');
         this.load.image('tuto_climb','assets/tuto_climb.png');
@@ -406,7 +406,7 @@ class scene_01 extends Phaser.Scene{
         zone_levier_01.body.setAllowGravity(false);
         zone_levier_01.body.moves = false;
 
-        pressE = this.add.sprite(3840,1110,'pressE').setAlpha(0);
+        press_e = this.add.sprite(3840,1110,'press_e').setAlpha(0);
 
         // ----- loot energy ----- //
 
@@ -729,7 +729,7 @@ class scene_01 extends Phaser.Scene{
         // ----- tuto levier ----- //
 
         if(zone_levier_01.body.touching.none){
-            pressE.setAlpha(0);
+            press_e.setAlpha(0);
         }
 
         // ----- controle clavier ----- //
@@ -1015,7 +1015,7 @@ function energy(){
 
 function activLevier(){
     if(loot == true){
-        pressE.setAlpha(1);
+        press_e.setAlpha(1);
         if(keyE.isDown){
             tween_elevator_ground.play();
             tween_elevator_cage.play();

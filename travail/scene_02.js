@@ -45,7 +45,7 @@ var particles_bullet;
 var emitter_particles_bullet
 
 var zone_levier_s2;
-var pressE_s2;
+var press_e_s2;
 
 
 class scene_02 extends Phaser.Scene{
@@ -290,7 +290,7 @@ class scene_02 extends Phaser.Scene{
         zone_levier_s2.body.setAllowGravity(false);
         zone_levier_s2.body.moves = false;
 
-        pressE_s2 = this.add.sprite(1985,200,'pressE').setAlpha(0);
+        press_e_s2 = this.add.sprite(1985,200,'press_e').setAlpha(0);
 
         this.physics.add.overlap(player,zone_levier_s2,leverOn_s2,null,this);
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
@@ -434,7 +434,7 @@ class scene_02 extends Phaser.Scene{
     update(){
 
         if(zone_levier_s2.body.touching.none){
-            pressE_s2.setAlpha(0);
+            press_e_s2.setAlpha(0);
         }
 
         if(playerHp == 5){
@@ -823,7 +823,7 @@ function climbOff(){
 
 function leverOn_s2(){
     console.log('ok')
-    pressE_s2.setAlpha(1);
+    press_e_s2.setAlpha(1);
     if(keyE.isDown && camera_block == false && active_lever_02 == false){
         active_lever_02 = true;
         camera_block = true;
