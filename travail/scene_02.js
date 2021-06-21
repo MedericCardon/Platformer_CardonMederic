@@ -2,6 +2,7 @@ var tween_block;
 var camera_block = false;
 
 // ----- enemy_01 ----- //
+
 var enemy_01;
 var zone_enemy_01;
 var enemy_agro_01 = false;
@@ -77,6 +78,8 @@ class scene_02 extends Phaser.Scene{
 
     create(){
 
+        // ----- background + paralaxe ----- //
+
         this.add.image(0,0,'background_s2').setOrigin(0);
         this.add.image(-300,-250,'etoiles_s2').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-250,'mush_para_02').setOrigin(0).setScrollFactor(0.25);
@@ -87,8 +90,11 @@ class scene_02 extends Phaser.Scene{
         const map = this.make.tilemap({key: 'scene_02_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
         
+        // ----- groupe projectile ----- //
 
         groupeBullets = this.physics.add.group();
+
+        // ----- particules ----- //
 
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -114,23 +120,25 @@ class scene_02 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
+        // ----- player ----- //
+
         player = this.physics.add.sprite(100,861,'player').setScale(1).setSize(90,70);//start : 100,861
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
 
-        const lever_s2 = map.createLayer('lever_s2', tileset,0,0);
-        
-        
-        const wall_s2 = map.createLayer('wall_s2', tileset,0,0);
+        // ----- elements de décors avec interaction ----- //
 
+        const lever_s2 = map.createLayer('lever_s2', tileset,0,0);
+        const wall_s2 = map.createLayer('wall_s2', tileset,0,0);
         lever_s2.setCollisionByExclusion(-1, true);
-        
         wall_s2.setCollisionByExclusion(-1, true);
 
         block = this.physics.add.sprite(3130,860,'plateforme_s2').setSize(90,70);
         block.body.setAllowGravity(false);
         block.setCollideWorldBounds(true);
         block.body.immovable = true;
+
+        // ----- particules ----- //
 
         particles_end_s2 = this.add.particles('particles_end');
         emitter_particles_end_s2 = particles_end_s2.createEmitter({
@@ -157,10 +165,10 @@ class scene_02 extends Phaser.Scene{
             blendMode: 'ADD'
         });
 
-        target_enemy_01.x = 1466;
-        target_enemy_01.y = 1400;
+        // ----- enemy 01 ----- //
 
-        
+        target_enemy_01.x = 1466; // position initial de l'ennemi
+        target_enemy_01.y = 1400;
 
         enemy_01 = this.physics.add.sprite(target_enemy_01.x,1400,'enemy');
         enemy_01.body.setAllowGravity(true);
@@ -168,10 +176,12 @@ class scene_02 extends Phaser.Scene{
         enemy_01.setScale(0.6);
         enemy_01.setSize(140,242);
 
-        zone_enemy_01 = this.add.zone(1150, 1385).setSize(800, 100);
+        zone_enemy_01 = this.add.zone(1150, 1385).setSize(800, 100); // zone de detection
         this.physics.world.enable(zone_enemy_01);
         zone_enemy_01.body.setAllowGravity(false);
         zone_enemy_01.body.moves = false;
+
+        // ----- enemy 02 ----- //
 
         target.x = 1410;
         target.y = 932;
@@ -186,6 +196,7 @@ class scene_02 extends Phaser.Scene{
         zone_enemy_02.body.setAllowGravity(false);
         zone_enemy_02.body.moves = false;
 
+        // ----- bloc de décors: ground,trap ----- //
 
         const ground_02_s2 = map.createLayer('ground_02_s2', tileset, 0, 0);
         ground_02_s2.setCollisionByExclusion(-1, true);
@@ -195,11 +206,13 @@ class scene_02 extends Phaser.Scene{
         this.add.image(-190,180,'end').setOrigin(0);
 
         
+        // ----- fx poison mush ----- //
 
         mush_poison = this.physics.add.sprite(enemy_02.x , enemy_02.y - 100,'mush_cloud').setScale(1.5);
         mush_poison.body.setAllowGravity(false);
         mush_poison.setAlpha(0);
 
+        // ----- animations ----- //
 
         this.anims.create({
             key: 'run',
@@ -269,12 +282,15 @@ class scene_02 extends Phaser.Scene{
             repeat: 0
         });
 
-        
+        // ----- camera ----- //
+
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  3840  , 1600);
         this.physics.world.setBounds(0, 0, 3840 , 1600);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
+
+        // ----- keyboard ----- //
 
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -284,35 +300,43 @@ class scene_02 extends Phaser.Scene{
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         
+        // ----- levier interactif ----- //
 
         zone_levier_s2 = this.add.zone(1875,285 ).setSize(64, 64);
         this.physics.world.enable(zone_levier_s2);
         zone_levier_s2.body.setAllowGravity(false);
         zone_levier_s2.body.moves = false;
 
+        // ----- tuto levier ----- //
+
         press_e_s2 = this.add.sprite(1985,200,'press_e').setAlpha(0);
+
+        // ----- overlap ----- //
 
         this.physics.add.overlap(player,zone_levier_s2,leverOn_s2,null,this);
         this.physics.add.overlap(player,zone_enemy_02,poison,null,this);
         this.physics.add.overlap(player,mush_poison,hit_player,null,this);
-        this.physics.add.overlap(player,zone_enemy_02,anim_mush,null,this);
+        this.physics.add.overlap(player, zone_enemy_01,agro_enemy_01,null,this);
+        this.physics.add.overlap(player, enemy_01,lose_life,null,this);
+        this.physics.add.overlap(player, zone_enemy_01,agro_enemy_01,null,this);
+        this.physics.add.overlap(player, enemy_01,lose_life,null,this);
+        this.physics.add.overlap(groupeBullets,enemy_01,killEnemy_01,null,this);
+
+        // ----- collider ----- //
+
         this.physics.add.collider(enemy_01,ground_02_s2);
         this.physics.add.collider(enemy_02,ground_02_s2);
         this.physics.add.collider(ground_02_s2,player, climbOff,null,this);
         this.physics.add.collider(wall_s2,player, climbOn,null,this);
         this.physics.add.collider(block,player);
-
-        this.physics.add.overlap(player, zone_enemy_01,agro_enemy_01,null,this);
-        this.physics.add.overlap(player, enemy_01,lose_life,null,this);
         this.physics.add.collider(enemy_01,ground_02_s2);
-        this.physics.add.overlap(groupeBullets,enemy_01,killEnemy_01,null,this);
         this.physics.add.collider(player,trap_s2, activeTrap,null,this);
-
         this.physics.add.collider(groupeBullets,ground_02_s2, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall_s2, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,trap_s2, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_s2, destroy_bullet,null,this);
         
+        // ----- bouton tire (clic gauche) ----- //
 
         this.input.on('pointerup', function () {
             if(bulletOn == true && sound_shot == true){
@@ -324,6 +348,7 @@ class scene_02 extends Phaser.Scene{
             emitter_particles_bullet.startFollow(bullet);
         }, this);
 
+        // ----- barre d'energie (si on tire elle diminue) ----- //
 
         barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
         barre_energie_01.body.setAllowGravity(false);
@@ -364,6 +389,8 @@ class scene_02 extends Phaser.Scene{
         ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
         ligne_energie.body.setAllowGravity(false);
         ligne_energie.setScale(1);
+
+        // ----- points de vie ----- //
 
         centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
         centre_pdv.body.setAllowGravity(false);
@@ -433,9 +460,11 @@ class scene_02 extends Phaser.Scene{
 
     update(){
 
-        if(zone_levier_s2.body.touching.none){
+        if(zone_levier_s2.body.touching.none){ // tuto levier
             press_e_s2.setAlpha(0);
         }
+
+        // ----- diminue/augmente les pdv du joueur ----- //
 
         if(playerHp == 5){
             pdv_01.setAlpha(1);
@@ -482,19 +511,8 @@ class scene_02 extends Phaser.Scene{
             tween_pdv_03.stop();
             tween_pdv_04.stop();
         } 
-        /*else if(playerHp == 0){
-            pdv_01.setAlpha(0.3);
-            pdv_02.setAlpha(0.3);
-            pdv_03.setAlpha(0.3);
-            pdv_04.setAlpha(0.3);
-            pdv_05.setAlpha(0.3);
-            tween_pdv_01.stop();
-            tween_pdv_02.stop();
-            tween_pdv_03.stop();
-            tween_pdv_04.stop();
-            tween_pdv_05.stop();
-        } */
-        if (playerHp == 0){
+
+        if (playerHp == 0){ // si le joueur n'a plus de pdv il reprend le niveau au début
             this.cameras.main.shake(100);
             this.cameras.main.fadeIn(2000);
             player.x = 100;
@@ -512,6 +530,8 @@ class scene_02 extends Phaser.Scene{
             tween_pdv_05.play();
             scoreCrystal = 9;
         }
+
+        // ----- diminue/augmente la barre d'energie ----- //
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -612,7 +632,7 @@ class scene_02 extends Phaser.Scene{
             barre_energie_08.setAlpha(0.3);
             barre_energie_09.setAlpha(1);
         }
-        else if(scoreCrystal == 0){
+        else if(scoreCrystal == 0){ // si energie 0 le joueur ne peut plus tirer 
             barre_energie_01.setAlpha(0.3);
             barre_energie_02.setAlpha(0.3);
             barre_energie_03.setAlpha(0.3);
@@ -623,6 +643,8 @@ class scene_02 extends Phaser.Scene{
             barre_energie_08.setAlpha(0.3);
             barre_energie_09.setAlpha(0.3);
         }
+
+        // ----- compteurs ----- //
 
         if(bulletOn == false){ // relance du compteur des projectiles //
             compteurBullet-- ;
@@ -639,6 +661,8 @@ class scene_02 extends Phaser.Scene{
                 invincible = false ;
             }
         }
+
+        // ----- si le joueur n'est pas dans la zone de détection de l'ennemi ----- //
 
         if(zone_enemy_01.body.touching.none && etat_enemy_01 == true){
             enemy_agro_01 = false;
@@ -668,7 +692,9 @@ class scene_02 extends Phaser.Scene{
             }
         }
 
-        if(invincibleEnemy_01 == true){ // relance du compteur d'invulné player //
+        // ----- compteur ennemi ----- //
+
+        if(invincibleEnemy_01 == true){ // relance du compteur d'invulné enemy 
             compteurEnemy_01-- ;
             if(compteurEnemy_01 == 0){
                 enemy_01.setTint(0xffffff);
@@ -676,6 +702,8 @@ class scene_02 extends Phaser.Scene{
                 invincibleEnemy_01 = false ;
             }
         }
+
+        // ----- active les plateforme grace aux leviers ----- //
 
         if(active_lever_02 == true){
             if(block.x >= 3130){
@@ -686,9 +714,13 @@ class scene_02 extends Phaser.Scene{
             }
         }
 
+        // ----- changement de zone ----- //
+
         if(player.x >= 3780){
             this.scene.start("scene_03");
         }
+
+        // ----- compteur poison enemy mush ----- //
 
         if(etat_poison == false && relance_poison > 0){ 
             relance_poison --;
@@ -697,6 +729,8 @@ class scene_02 extends Phaser.Scene{
                 relance_poison = 120;
             }
         }
+
+        // ----- si le joueur n'est pas dans la zone de détection de l'ennemi 2 ----- //
      
         if(zone_enemy_02.body.touching.none){
             etat_poison = false;
@@ -719,6 +753,8 @@ class scene_02 extends Phaser.Scene{
                 enemy_02_direction_right = true;
             }
         }
+        // ----- mouvement de camera ----- //
+
             if(compteur_cam == 0){
                 compteur_cam = 250;
             }
@@ -735,6 +771,8 @@ class scene_02 extends Phaser.Scene{
             etat_cam = false;
         }
         
+        // ----- controle clavier ----- //
+
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             player.anims.play('jump',true);
@@ -813,6 +851,8 @@ class scene_02 extends Phaser.Scene{
     }
 }
 
+// ----- fonctions ----- //
+
 function climbOn(){
     wall_climb = true
 }
@@ -822,7 +862,6 @@ function climbOff(){
 }
 
 function leverOn_s2(){
-    console.log('ok')
     press_e_s2.setAlpha(1);
     if(keyE.isDown && camera_block == false && active_lever_02 == false){
         active_lever_02 = true;

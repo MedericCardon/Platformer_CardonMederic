@@ -95,7 +95,6 @@ var particles;
 var particles_01;
 
 var sound_shot = false;
-var rejouer = false;
 
 
 
@@ -646,24 +645,6 @@ class scene_01 extends Phaser.Scene{
             scoreCrystal = 9;
         }
 
-        if (rejouer == true){
-            this.cameras.main.shake(100);
-            this.cameras.main.fadeIn(2000);
-            player.x = 100;
-            player.y = 925;
-            playerHp = 5;
-            pdv_01.setAlpha(1);
-            tween_pdv_01.play();
-            pdv_02.setAlpha(1);
-            tween_pdv_02.play();
-            pdv_03.setAlpha(1);
-            tween_pdv_03.play();
-            pdv_04.setAlpha(1);
-            tween_pdv_04.play();
-            pdv_05.setAlpha(1);
-            tween_pdv_05.play();
-            scoreCrystal = 9;
-        }
 
         // ----- relance des compteurs ----- //
 

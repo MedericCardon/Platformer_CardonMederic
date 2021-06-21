@@ -82,11 +82,11 @@ class scene_05 extends Phaser.Scene{
     }
 
     preload(){
+
         this.load.image('tiles', 'assets/place_holder.png');
         this.load.tilemapTiledJSON('scene_05_placeholder', 'scene_05.json');
         this.load.spritesheet('player','assets/spritesheet_player.png',{ frameWidth: 146.666667, frameHeight: 173 });
         this.load.spritesheet('enemy','assets/ennemi.png',{ frameWidth: 212, frameHeight: 282 });
-
         this.load.image('background_s5','assets/scene_05/background_s5.png');
         this.load.image('branches_s5','assets/scene_05/branche_s5.png');
         this.load.image('etoiles_s5','assets/scene_05/etoiles_s5.png');
@@ -106,26 +106,28 @@ class scene_05 extends Phaser.Scene{
         this.load.spritesheet('mush_cloud','assets/nuage_toxique.png',{ frameWidth: 197, frameHeight: 197 });
         this.load.spritesheet('enemy_02','assets/mush_02.png',{ frameWidth: 150, frameHeight: 316 });
         this.load.spritesheet('enemy_03','assets/mush_03.png',{ frameWidth: 183, frameHeight: 288 });
-
         this.load.image('tuto_changement','assets/tuto_changement.png');
     }
 
     create(){
+
+        // ----- background ----- //
 
         this.add.image(0,0,'background_s5').setOrigin(0);
         this.add.image(-300,-200,'etoiles_s5').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-800,'mush_para_02_s5').setOrigin(0).setScrollFactor(0.25);
         this.add.image(-200,-800,'mush_para_01_s5').setOrigin(0).setScrollFactor(0.5);
         this.add.image(-100,-400,'crystal_paralaxe_s5').setOrigin(0).setScrollFactor(0.7);
-        
         this.add.image(0,0,'branches_s5').setOrigin(0);
-
-        
         const map = this.make.tilemap({key: 'scene_05_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
 
+        // ----- groupe projectile ----- //
+
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy_03_s5 = this.physics.add.group();
+
+        // ----- particules ----- //
        
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -199,14 +201,20 @@ class scene_05 extends Phaser.Scene{
             blendMode: 'ADD'
         });
 
+        // ----- player ----- //
+
         player = this.physics.add.sprite(90,349,'player').setScale(1).setSize(90,70);//start1 : 90,349, start2 : 550,2013
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        // ----- porte ----- //
 
         door_explo_01 = this.physics.add.sprite(1880,700,'door_explo').setSize(70,170);
         door_explo_01.body.setAllowGravity(false);
         door_explo_01.setCollideWorldBounds(true);
         door_explo_01.body.immovable = true;
+
+        // ----- power-up tire explo ----- //
 
         crystal_power_up = this.physics.add.sprite(2424,250,'crystal_explo_anim').setSize(50,50);
         crystal_power_up.body.setAllowGravity(false);
@@ -219,6 +227,8 @@ class scene_05 extends Phaser.Scene{
             yoyo: true,
             repeat: -1,
         }); 
+
+        // ----- particules devant joueur ----- //
         
         particles_end1_s5 = this.add.particles('particles_end');
         emitter_particles_end1_s5 = particles_end1_s5.createEmitter({
@@ -243,6 +253,8 @@ class scene_05 extends Phaser.Scene{
             on: false
         });
 
+        // ----- ennemi ----- //
+
         target_mush_s5.x = 1940;
         target_mush_s5.y = 2141;
 
@@ -262,19 +274,12 @@ class scene_05 extends Phaser.Scene{
         enemy_03_s5.setScale(0.6);
         enemy_03_s5.setSize(140,242);
 
-        this.anims.create({
-            key: 'walk_enemy_03',
-            frames: this.anims.generateFrameNumbers('enemy_03', { start: 0, end: 19}),
-            frameRate: 15,
-            repeat: 0
-        });
-
         zone_enemy_03_s5 = this.add.zone(2400, 925).setSize(1000, 200);
         this.physics.world.enable(zone_enemy_03_s5);
         zone_enemy_03_s5.body.setAllowGravity(false);
         zone_enemy_03_s5.body.moves = false;
 
-        
+        // ----- elements de decors ----- //
 
         this.add.image(0,0,'foreground_s5').setOrigin(0);
         const elevator_s5 = map.createLayer('elevator_s5', tileset,0,0);
@@ -284,6 +289,14 @@ class scene_05 extends Phaser.Scene{
         const trap_s5 = map.createLayer('trap_s5', tileset,0,0);
         const wall_s5 = map.createLayer('wall_s5', tileset,0,0);
         const lever_s5 = map.createLayer('lever_s5', tileset,0,0);
+        ground_02_s5.setCollisionByExclusion(-1, true);
+        wall_s5.setCollisionByExclusion(-1, true);
+        trap_s5.setCollisionByExclusion(-1, true);
+        elevator_s5.setCollisionByExclusion(-1, true);
+        ground_elevator_s5.setCollisionByExclusion(-1, true);
+        lever_s5.setCollisionByExclusion(-1, true);
+
+        // ----- fx poison mush ----- //
 
         mush_poison_s5 = this.physics.add.sprite(enemy_s5.x , enemy_s5.y - 75,'mush_cloud').setScale(1.5);
         mush_poison_s5.body.setAllowGravity(false);
@@ -291,13 +304,7 @@ class scene_05 extends Phaser.Scene{
 
         this.add.image(0,0,'end_s5').setOrigin(0);
         
-
-        ground_02_s5.setCollisionByExclusion(-1, true);
-        wall_s5.setCollisionByExclusion(-1, true);
-        trap_s5.setCollisionByExclusion(-1, true);
-        elevator_s5.setCollisionByExclusion(-1, true);
-        ground_elevator_s5.setCollisionByExclusion(-1, true);
-        lever_s5.setCollisionByExclusion(-1, true);
+        // ----- plateforme elevator ----- //
 
         tween_elevator_s5= this.tweens.add({
             targets: elevator_s5,
@@ -316,6 +323,8 @@ class scene_05 extends Phaser.Scene{
             yoyo : true,
             repeat: 0,
         }); 
+
+        // ----- animations ----- //
 
         this.anims.create({
             key: 'run',
@@ -397,12 +406,23 @@ class scene_05 extends Phaser.Scene{
             repeat: 0
         });
 
+        this.anims.create({
+            key: 'walk_enemy_03',
+            frames: this.anims.generateFrameNumbers('enemy_03', { start: 0, end: 19}),
+            frameRate: 15,
+            repeat: 0
+        });
+
+        // ----- interaction levier ----- //
+
         press_e_s5= this.add.sprite(100,1950,'press_e').setVisible(false);
 
         zone_levier_s5 = this.add.zone(237, 2013).setSize(64, 64);
         this.physics.world.enable(zone_levier_s5);
         zone_levier_s5.body.setAllowGravity(false);
         zone_levier_s5.body.moves = false
+
+        // ----- loot crystal (+energie) ----- //
 
         crystal_loot_s5 = this.physics.add.sprite(1580,660,'crystal_loot');
         crystal_loot_s5.body.setAllowGravity(false);
@@ -415,6 +435,8 @@ class scene_05 extends Phaser.Scene{
             repeat: -1,
         });
 
+        // ----- tuto tire explo ----- //
+
         tuto_changement = this.add.sprite(3170,410,'tuto_changement').setAlpha(0);
 
         tween_climb = this.tweens.add({
@@ -425,6 +447,8 @@ class scene_05 extends Phaser.Scene{
             repeat: -1,
         }); 
 
+        // ----- keyboard ----- //
+
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
@@ -433,46 +457,46 @@ class scene_05 extends Phaser.Scene{
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
         keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+
+        // ----- overlap ----- //
         
         this.physics.add.overlap(player,crystal_loot_s5, lootCrystal_s5,null,this);
         this.physics.add.overlap(groupeBulletsEnemy_03_s5,player, lose_life,null,this);
-        this.physics.add.collider(ground_02_s5,enemy_03_s5);
         this.physics.add.overlap(groupeBullets,enemy_03_s5, killEnemy03_s5,null,this);
         this.physics.add.overlap(player, zone_enemy_03_s5,agro_enemy_03_s5,null,this);
         this.physics.add.overlap(player, zone_enemy_03_s5,shot_enemy_s5,null,this);
-
         this.physics.add.overlap(player,zone_enemy_s5,poison_s5,null,this);
         this.physics.add.overlap(player,mush_poison_s5,hit_player_s5,null,this);
         this.physics.add.overlap(player,zone_enemy_s5,anim_mush_s5,null,this);
-
         this.physics.add.overlap(door_explo_01,groupeBullets,openDoor,null,this);
         this.physics.add.overlap(crystal_power_up,player,activeExplo,null,this);
         this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet,null,this);
+        this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet_explo,null,this);
+        this.physics.add.overlap(zone_levier_s5,player, activeElevator_s5,null,this);
+
+        // ----- collider ----- //
+
         this.physics.add.collider(groupeBullets,ground_02_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,ground_01_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall_s5, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet,null,this);
-
-        this.physics.add.overlap(groupeBullets,door_explo_01, destroy_bullet_explo,null,this);
+        this.physics.add.collider(ground_02_s5,enemy_03_s5);
         this.physics.add.collider(groupeBullets,ground_02_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,ground_01_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,wall_s5, destroy_bullet_explo,null,this);
         this.physics.add.collider(groupeBullets,lever_s5, destroy_bullet_explo,null,this);
-
-        this.physics.add.overlap(zone_levier_s5,player, activeElevator_s5,null,this);
-        
         this.physics.add.collider(wall_s5,player, climbOn,null,this);
         this.physics.add.collider(ground_02_s5,player, climbOff,null,this);
         this.physics.add.collider(ground_02_s5,enemy_s5);
         this.physics.add.collider(trap_s5,player, trap,null,this);
         this.physics.add.collider(elevator_s5,player);
-        
         this.physics.add.collider(door_explo_01,player);
         this.physics.add.collider(door_explo_01,ground_02_s5);
 
+        // ----- fonction desactive porte ----- //
+
         function openDoor(){
             if(crystal_explo == true && activeDoor == false){
-                console.log("ok");
                 door_explo_01.body.setAllowGravity(true);
                 door_explo_01.setCollideWorldBounds(true);
                 door_explo_01.body.immovable = false;
@@ -481,12 +505,15 @@ class scene_05 extends Phaser.Scene{
             }
         }
         
+        // ----- camera ----- //
+
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  3584  , 2240);
         this.physics.world.setBounds(0, 0, 3584 , 2240);
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
 
+        // ----- tire clic gauche ----- //
 
         this.input.on('pointerup', function () {
             if(bulletOn == true && sound_shot == true){
@@ -508,6 +535,8 @@ class scene_05 extends Phaser.Scene{
 
         crystal_power_up.anims.play('crystal');
 
+        // ----- position de départ du joueur selon le chemin choisi ----- //
+
         if(end_s4 == true){
             player.x = 550;
             player.y = 2013;
@@ -516,6 +545,8 @@ class scene_05 extends Phaser.Scene{
             player.x = 90;
             player.y = 349;
         }
+
+        // ----- barre d'energie ----- //
 
         barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
         barre_energie_01.body.setAllowGravity(false);
@@ -556,6 +587,8 @@ class scene_05 extends Phaser.Scene{
         ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
         ligne_energie.body.setAllowGravity(false);
         ligne_energie.setScale(1);
+
+        // ----- points de vie ----- //
 
         centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
         centre_pdv.body.setAllowGravity(false);
@@ -629,6 +662,7 @@ class scene_05 extends Phaser.Scene{
             press_e_s5.setVisible(false);
         }
 
+        // ----- compteurs ----- //
 
         if(invincibleEnemy_03_s5 == true){ // relance du compteur d'invulné player //
             compteurEnemy_03_s5-- ;
@@ -662,6 +696,16 @@ class scene_05 extends Phaser.Scene{
                 relance_poison_s5 = 120;
             }
         }
+
+        if(bulletOn == false){ // relance du compteur des projectiles //
+            compteurBullet-- ;
+            if(compteurBullet == 0){
+                compteurBullet = 160;
+                bulletOn = true ;
+            }
+        }
+
+        // ----- zone ennemi ----- //
 
         if(zone_enemy_03_s5.body.touching.none){
             if(anims_enemy_03_s5 == true){
@@ -713,6 +757,8 @@ class scene_05 extends Phaser.Scene{
         if(etat_explo == true){
             crystal_power_up.destroy(true,true); 
         }
+
+        // ----- interaction points de vie ----- //
 
         if(playerHp == 5){
             pdv_01.setAlpha(1);
@@ -784,6 +830,8 @@ class scene_05 extends Phaser.Scene{
             tween_pdv_05.play();
             scoreCrystal = 9;
         }
+
+        // ----- interaction barre d'energie ----- //
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -898,21 +946,25 @@ class scene_05 extends Phaser.Scene{
 
         etat_power_up_dash = true;
 
+        // ----- compteur mouvement camera ----- //
+
         if(compteur_cam_door == 0){
             compteur_cam_door = 250;
         }
 
-    if( camera_door == true){
-        const cam_door = this.cameras.main;
-        if(compteur_cam_door > 0 && etat_cam_door == true){
-            compteur_cam_door --;
-            cam_door.pan(1883, 925, 2000);
-        }         
-    }
-    if(compteur_cam_door <= 0){
-        this.cameras.main.pan(2406, 285, 2000);
-        etat_cam_door = false;
-    }
+        if( camera_door == true){
+            const cam_door = this.cameras.main;
+            if(compteur_cam_door > 0 && etat_cam_door == true){
+                compteur_cam_door --;
+                cam_door.pan(1883, 925, 2000);
+            }         
+        }
+        if(compteur_cam_door <= 0){
+            this.cameras.main.pan(2406, 285, 2000);
+            etat_cam_door = false;
+        }
+
+        // ----- activ porte ----- //
 
         if(activeDoor == true){
             door_explo_01.setVelocityY(100)
@@ -920,6 +972,8 @@ class scene_05 extends Phaser.Scene{
                 activeDoor = false;
             }
         }
+
+        // ----- changement de zone ----- //
 
         if(player.y >= 2200){
             this.scene.start("scene_04");
@@ -930,13 +984,8 @@ class scene_05 extends Phaser.Scene{
             door_explo_01.destroy(true,true);
         }
 
-        if(bulletOn == false){ // relance du compteur des projectiles //
-            compteurBullet-- ;
-            if(compteurBullet == 0){
-                compteurBullet = 160;
-                bulletOn = true ;
-            }
-        }
+        
+        // ----- contole clavier ----- //
 
         if (Phaser.Input.Keyboard.JustDown(keyA) && etat_explo == true){
             if(crystal_explo == false){
@@ -981,7 +1030,6 @@ class scene_05 extends Phaser.Scene{
                 emitter_particles_player.startFollow(player);
             }
             else if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
-                console.log(wall_climb);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
                 player.direction = 'left';
@@ -1104,6 +1152,8 @@ class scene_05 extends Phaser.Scene{
     }
 }
 
+// ----- fonctions ----- //
+
 function agro_enemy_03_s5 (){
     enemy_03_agro_s5 = true;
     if(anims_enemy_03_s5 == true){
@@ -1161,7 +1211,6 @@ function killEnemy03_s5(){
 }
 
 function climbOn(){
-    console.log(wall_climb);
     wall_climb = true
 }
 

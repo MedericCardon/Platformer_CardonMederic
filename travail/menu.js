@@ -62,9 +62,9 @@ class menu extends Phaser.Scene{
 
         this.add.image(0,0,'background_menu').setOrigin(0);
 
+        // ----- Logo jeu ----- //
+
         crystal_centre = this.add.sprite(335,3,'crystal_centre').setOrigin(0);
-
-
 
         crystal_01 = this.add.sprite(0,0,'crystal_01').setOrigin(0);
 
@@ -174,7 +174,7 @@ class menu extends Phaser.Scene{
 
         this.add.image(448,130,'titre');
 
-        
+        // ----- boutons on mouse over ----- //
         
         bouton_01 = this.physics.add.sprite(448,386,'bouton_01').setInteractive();
         bouton_01.body.setAllowGravity(false);
@@ -223,7 +223,8 @@ class menu extends Phaser.Scene{
         }, this);
 
         
-
+        // ----- camera ----- //
+        
         this.cameras.main.setBounds(0, 0,  896  , 448 );
         this.physics.world.setBounds(0, 0, 896 , 448);
         this.cameras.main.fadeIn(1000);

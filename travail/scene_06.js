@@ -32,6 +32,7 @@ class scene_06 extends Phaser.Scene{
     }
 
     create(){
+
         this.add.image(0,0,'background_menu').setOrigin(0);
         logo = this.add.sprite(448,200,'logo');
 
@@ -106,14 +107,10 @@ class scene_06 extends Phaser.Scene{
             this.scene.start("scene_01");
             var button = this.sound.add('switch_button');
             button.play();
-            rejouer = true;
         }, this);
     }
 
     update(){
-        if(rejouer == true){
-            rejouer = false;
-        }
 
     }
 }

@@ -117,6 +117,9 @@ class scene_03 extends Phaser.Scene{
     }
 
     create(){
+
+         // ----- background ----- //
+
         this.add.image(0,0,'background_s3').setOrigin(0);
         this.add.image(-300,-250,'etoiles_s3').setOrigin(0).setScrollFactor(0.1);
         this.add.image(-300,-250,'mush_para_02_s3').setOrigin(0).setScrollFactor(0.25);
@@ -126,21 +129,19 @@ class scene_03 extends Phaser.Scene{
         this.add.image(0,0,'branches_s3').setOrigin(0);
         const map = this.make.tilemap({key: 'scene_03_placeholder'});
         const tileset = map.addTilesetImage('place_holder_scene_02'/*nom fichier tiled*/, 'tiles');
-        
-    
         const wall_s3 = map.createLayer('wall_s3', tileset,0,0);
         const lever_3 = map.createLayer('lever_3', tileset,0,0);
         const lever_4 = map.createLayer('lever_4', tileset,0,0);
-        
-
-
         wall_s3.setCollisionByExclusion(-1, true);
         lever_3.setCollisionByExclusion(-1, true);
         lever_4.setCollisionByExclusion(-1, true);
         
+        // ----- groupe projectile player & ennemi ----- //
 
         groupeBullets = this.physics.add.group();
         groupeBulletsEnemy_03 = this.physics.add.group();
+
+        // ----- particules derriere player----- //
 
         particles_player = this.add.particles('particles_player');
         emitter_particles_player = particles_player.createEmitter({
@@ -156,7 +157,6 @@ class scene_03 extends Phaser.Scene{
 
         particles = this.add.particles('particles_bullet')
             particles.createEmitter({
-            //frame: 'particles_bullet',
             x: 600, y: 450,
             lifespan: { min: 500, max: 600 },
             angle: { start: 0, end: 360, steps: 64 },
@@ -167,6 +167,8 @@ class scene_03 extends Phaser.Scene{
             on:false,
             blendMode: 'ADD'
         });
+
+        // ----- tuto dash (power-up) ----- //
 
         tuto_dash = this.add.sprite(800,1657,'espace').setVisible(false);
 
@@ -183,12 +185,13 @@ class scene_03 extends Phaser.Scene{
             repeat: -1,
         }); 
 
-
-        
+        // ----- player ----- //
 
         player = this.physics.add.sprite(109,797,'player').setScale(1).setSize(90,70)/*.setOffset(40,0)*/;//depart = 109,797
         player.body.setAllowGravity(true);
         player.setCollideWorldBounds(true);
+
+        // ----- particules devant player ----- //
 
         particles_crystal_dash = this.add.particles('particles_player');
         emitter_crystal_dash = particles_crystal_dash.createEmitter({
@@ -225,6 +228,8 @@ class scene_03 extends Phaser.Scene{
             blendMode: 'ADD',
         });
 
+        // ----- chute de crystal ----- //
+
 
         crystal_chute_01 = this.physics.add.sprite(2300,1600,'crystal_chute').setScale(2).setSize(20,20);
         crystal_chute_01.body.setAllowGravity(false);
@@ -233,7 +238,6 @@ class scene_03 extends Phaser.Scene{
             targets: crystal_chute_01,
             y:  2200,
             duration: 1800,
-            //paused: true,
             repeat: -1,
         }); 
 
@@ -244,7 +248,6 @@ class scene_03 extends Phaser.Scene{
             targets: crystal_chute_02,
             y:  2200,
             duration: 2000,
-            //paused: true,
             repeat: -1,
         });
 
@@ -255,9 +258,10 @@ class scene_03 extends Phaser.Scene{
             targets: crystal_chute_03,
             y:  2200,
             duration: 2200,
-            //paused: true,
             repeat: -1,
         })
+
+        // ----- zone de fin ----- //
 
         this.add.image(-60,0,'end_01').setOrigin(0);
 
@@ -274,6 +278,8 @@ class scene_03 extends Phaser.Scene{
         });
 
         this.add.image(0,0,'end_02').setOrigin(0);
+
+        // ----- plateforme en mouvement ----- //
 
         plateforme_01 = this.physics.add.sprite(500,1100,'plateforme_s3').setSize(90,70);
         plateforme_01.body.setAllowGravity(false);
@@ -295,8 +301,7 @@ class scene_03 extends Phaser.Scene{
         plateforme_04.setCollideWorldBounds(true);
         plateforme_04.body.immovable = true;
 
-        
-        
+        // ----- animation ----- //
 
         this.anims.create({
             key: 'run',
@@ -331,19 +336,6 @@ class scene_03 extends Phaser.Scene{
             repeat: -1
         });
 
-
-
-        fall_block_02 = this.physics.add.sprite(1088,764,'fall_block_02');
-        fall_block_02.setOrigin(0);
-        fall_block_02.body.setAllowGravity(false);
-        fall_block_02.setSize(128,192);
-
-        enemy_03 = this.physics.add.sprite(600,1500,'enemy_03');
-        enemy_03.body.setAllowGravity(true);
-        enemy_03.setCollideWorldBounds(true);
-        enemy_03.setScale(0.6);
-        enemy_03.setSize(140,242);
-
         this.anims.create({
             key: 'walk_enemy_03',
             frames: this.anims.generateFrameNumbers('enemy_03', { start: 0, end: 19}),
@@ -351,22 +343,38 @@ class scene_03 extends Phaser.Scene{
             repeat: 0
         });
 
+        // ----- block qui tombe ----- //
+
+        fall_block_02 = this.physics.add.sprite(1088,764,'fall_block_02');
+        fall_block_02.setOrigin(0);
+        fall_block_02.body.setAllowGravity(false);
+        fall_block_02.setSize(128,192);
+
+        // ----- ennemi ----- //
+
+        enemy_03 = this.physics.add.sprite(600,1500,'enemy_03');
+        enemy_03.body.setAllowGravity(true);
+        enemy_03.setCollideWorldBounds(true);
+        enemy_03.setScale(0.6);
+        enemy_03.setSize(140,242);
+
         zone_enemy_03 = this.add.zone(790, 1828).setSize(700, 200);
         this.physics.world.enable(zone_enemy_03);
         zone_enemy_03.body.setAllowGravity(false);
         zone_enemy_03.body.moves = false;
 
+        // ----- ground + trap ----- //
+
         const ground_01_s3 = map.createLayer('ground_01_s3', tileset, 0, 0);
         const ground_02_s3 = map.createLayer('ground_02_s3', tileset, 0, 0);
         const ground_03_s3 = map.createLayer('ground_03_s3', tileset, 0, 0);
         const trap_s3 = map.createLayer('trap_s3', tileset,0,0);
-        
-
         ground_01_s3.setCollisionByExclusion(-1, true);
         ground_02_s3.setCollisionByExclusion(-1, true);
         ground_03_s3.setCollisionByExclusion(-1, true);
         trap_s3.setCollisionByExclusion(-1, true);
 
+        // ----- zone levier ----- //
         press_e_02 = this.add.sprite(1410,700,'press_e').setVisible(false);
 
         zone_levier_02 = this.add.zone(1517, 797).setSize(64, 64);
@@ -381,6 +389,8 @@ class scene_03 extends Phaser.Scene{
         zone_levier_03.body.setAllowGravity(false);
         zone_levier_03.body.moves = false;
 
+        // ----- power-up dash ----- //
+
         power_up_dash = this.physics.add.sprite(170,1800,'dash_power_up');
         power_up_dash.body.setAllowGravity(false);
         power_up_dash.setCollideWorldBounds(true);
@@ -394,6 +404,8 @@ class scene_03 extends Phaser.Scene{
             repeat: -1,
         }); 
 
+        // ----- keyboard ----- //
+
         cursors = this.input.keyboard.createCursorKeys();
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         keyE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
@@ -402,45 +414,44 @@ class scene_03 extends Phaser.Scene{
         keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
+        // ----- overlap ----- //
 
         this.physics.add.overlap(crystal_chute_01,player,lose_life,null,this);
         this.physics.add.overlap(crystal_chute_02,player,lose_life,null,this);
         this.physics.add.overlap(crystal_chute_03,player,lose_life,null,this);
+        this.physics.add.overlap(zone_levier_02,player,leverOn3_s3,null,this);
+        this.physics.add.overlap(zone_levier_03,player,leverOn4_s3,null,this);
+        this.physics.add.overlap(groupeBullets,enemy_03, killEnemy03,null,this);
+        this.physics.add.overlap(groupeBulletsEnemy_03,player, lose_life,null,this);
+        this.physics.add.overlap(power_up_dash,player, activeDash,null,this);
+        this.physics.add.overlap(player, zone_enemy_03,agro_enemy_03,null,this);
+        this.physics.add.overlap(player, zone_enemy_03,shot_enemy,null,this);
+        this.physics.add.overlap(player, zone_tuto_dash,tutoDash,null,this);  
+
+        // ----- collider ----- //
 
         this.physics.add.collider(groupeBullets,ground_02_s3, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,wall_s3, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_3, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,lever_4, destroy_bullet,null,this);
         this.physics.add.collider(groupeBullets,fall_block_02, destroy_bullet,null,this);
-
-        this.physics.add.overlap(zone_levier_02,player,leverOn3_s3,null,this);
-        this.physics.add.overlap(zone_levier_03,player,leverOn4_s3,null,this);
-
         this.physics.add.collider(plateforme_01,player);
         this.physics.add.collider(plateforme_02,player);
         this.physics.add.collider(plateforme_03,player);
         this.physics.add.collider(plateforme_04,player);
-
         this.physics.add.collider(enemy_03,fall_block_02);
         this.physics.add.collider(fall_block_02,player);
         this.physics.add.collider(fall_block_02,ground_03_s3,disable_fallBlock_s2,null,this);
         this.physics.add.collider(player,ground_03_s3);
-        this.physics.add.collider(fall_block_02,ground_02_s3,enable_fallBlock_02,null,this);
-
-        
-        
+        this.physics.add.collider(fall_block_02,ground_02_s3,enable_fallBlock_02,null,this);  
         this.physics.add.collider(wall_s3,player, climbOn,null,this);
         this.physics.add.collider(ground_02_s3,player, climbOff,null,this);
         this.physics.add.collider(ground_02_s3,enemy_03);
         this.physics.add.collider(trap_s3,player, trap_s2,null,this);
-        this.physics.add.overlap(power_up_dash,player, activeDash,null,this);
+        
 
-        this.physics.add.overlap(groupeBullets,enemy_03, killEnemy03,null,this);
-        this.physics.add.overlap(groupeBulletsEnemy_03,player, lose_life,null,this);
-
-        this.physics.add.overlap(player, zone_enemy_03,agro_enemy_03,null,this);
-        this.physics.add.overlap(player, zone_enemy_03,shot_enemy,null,this);
-        this.physics.add.overlap(player, zone_tuto_dash,tutoDash,null,this);     
+           
+        // ----- camera ----- //
 
         this.cameras.main.setZoom(0.55);
         this.cameras.main.setBounds(0, 0,  3456  , 1984);
@@ -448,6 +459,7 @@ class scene_03 extends Phaser.Scene{
         this.cameras.main.startFollow(player, true, 0.05, 0.05);
         this.cameras.main.fadeIn(2000);
 
+        // ----- tire (clic gauche) ----- //
 
         this.input.on('pointerup', function () {
             if(bulletOn == true && sound_shot == true){
@@ -458,6 +470,8 @@ class scene_03 extends Phaser.Scene{
             energy();
             emitter_particles_bullet.startFollow(bullet);
         }, this);
+
+        // ----- barre d'energie ----- //
 
         barre_energie_01 = this.physics.add.sprite(0,550,'barre_01').setScrollFactor(0);
         barre_energie_01.body.setAllowGravity(false);
@@ -498,6 +512,8 @@ class scene_03 extends Phaser.Scene{
         ligne_energie = this.physics.add.sprite(-140,550,'ligne_energie').setScrollFactor(0);
         ligne_energie.body.setAllowGravity(false);
         ligne_energie.setScale(1);
+
+        // ----- points de vie ----- //
 
         centre_pdv = this.physics.add.sprite(-250,-70,'centre').setScrollFactor(0);
         centre_pdv.body.setAllowGravity(false);
@@ -566,6 +582,8 @@ class scene_03 extends Phaser.Scene{
 
     update(){
 
+        // ----- interaction points de vie ----- //
+
         if(playerHp == 5){
             pdv_01.setAlpha(1);
             pdv_02.setAlpha(1);
@@ -633,6 +651,8 @@ class scene_03 extends Phaser.Scene{
             tween_pdv_05.play();
             scoreCrystal = 9;
         }
+
+        // ----- interaction energie ----- //
 
         if (scoreCrystal == 9){
             barre_energie_01.setAlpha(1);
@@ -745,6 +765,8 @@ class scene_03 extends Phaser.Scene{
             barre_energie_09.setAlpha(0.3);
         }
 
+        // ----- compteurs ----- //
+
         if(invincible == true){ // relance du compteur d'invulné player //
             compteur-- ;
             if(compteur == 0){
@@ -770,6 +792,8 @@ class scene_03 extends Phaser.Scene{
             }
         }
 
+        // ----- divers ----- //
+
         if(zone_tuto_dash.body.touching.none){
             tuto_dash.setVisible(false);
         }
@@ -790,6 +814,7 @@ class scene_03 extends Phaser.Scene{
             enemy_03.play('walk_enemy_03',true);
         }
         
+        // ----- compteur ennemi ----- //
 
         if(bulletEnemyOn_03 == false){ // relance du compteur des projectiles //
             compteurBulletEnemy_03 -- ;
@@ -798,6 +823,8 @@ class scene_03 extends Phaser.Scene{
                 bulletEnemyOn_03 = true ;
             }
         }
+
+        // ----- changement de scene ----- //
 
         if(player.y == 1821 && player.x == 3411){
             this.scene.start("scene_04");
@@ -810,6 +837,7 @@ class scene_03 extends Phaser.Scene{
             end2 = false;
         }
 
+        // ----- mouvement des plateformes ----- //
 
         if(plateforme_01.y > 1099){
             plateforme_01.setVelocityY(-100);
@@ -825,6 +853,7 @@ class scene_03 extends Phaser.Scene{
             plateforme_02.setVelocityY(-100);
         }
 
+        // ----- activation des leviers ----- //
 
         if(active_lever_3 == true){
             if(plateforme_03.x >= 2499){
@@ -832,7 +861,6 @@ class scene_03 extends Phaser.Scene{
             }
             if(plateforme_03.x <= 1750 ){
                 plateforme_03.setVelocityX(200);
-                console.log("ok plateforme")
             }
         }
 
@@ -844,6 +872,7 @@ class scene_03 extends Phaser.Scene{
                 plateforme_04.setVelocity(0);
         }
 
+        // ----- compteurs dash ----- //
 
         if(etat_dash == false && relance_dash > 0 && etat_power_up_dash == true){ 
             relance_dash --;
@@ -858,7 +887,8 @@ class scene_03 extends Phaser.Scene{
             dash = false;
         }
 
-       
+       // ----- zone ennemi ----- //
+
         if(zone_enemy_03.body.touching.none){
             if(anims_enemy_03 == true){
                 enemy_03_agro = false;
@@ -884,6 +914,8 @@ class scene_03 extends Phaser.Scene{
             }
         }
 
+        // ----- controle clavier ----- //
+
         if (Phaser.Input.Keyboard.JustDown(keyZ) && player.body.blocked.down) {
             player.setVelocityY(-500);
             player.anims.play('jump',true);
@@ -898,7 +930,6 @@ class scene_03 extends Phaser.Scene{
                 emitter_particles_player.startFollow(player);
             }
             else if(keyQ.isDown && keyZ.isDown && player.body.blocked.left && wall_climb == true){
-                console.log(wall_climb);
                 player.anims.play('climb',true);
                 player.setVelocityY(-250);
                 player.setVelocityX(-350);
@@ -973,8 +1004,9 @@ class scene_03 extends Phaser.Scene{
     }
 }
 
+// ----- fonctions ----- //
+
 function climbOn(){
-    console.log(wall_climb);
     wall_climb = true
 }
 
